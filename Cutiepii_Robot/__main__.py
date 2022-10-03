@@ -110,7 +110,7 @@ def get_readable_time(seconds: int) -> str:
 
 
 HELP_MSG = "Click the button below to get help manu in your pm."
-START_MSG = "I'm awake already!\n<b>Haven't slept since:</b> <code>{}</code>"
+START_MSG = "I have never been dead  :] have you been dead ?"
 
 PM_START_TEXT = """
 ────「 [{}](https://telegra.ph/file/85581d42f2b95ff65fc06.jpg) 」────
@@ -128,12 +128,10 @@ buttons = [
     [
         InlineKeyboardButton(
             text="Add Cutiepii To Your Group",
-            url="https://telegram.dog/Cutiepii_Robot?startgroup=true")
+            url="https://telegram.dog/Hinami_FueguchiRobot?startgroup=true")
     ],
     [
         InlineKeyboardButton(text="[► Help ◄]", callback_data="help_back"),
-        InlineKeyboardButton(text="❔ Chit Chat",
-                             url="https://telegram.dog/GIrlsBoysXD"),
         InlineKeyboardButton(text="[► Inline ◄]",
                              switch_inline_query_current_chat=""),
     ],
@@ -141,7 +139,7 @@ buttons = [
         InlineKeyboardButton(text="🚑 Support",
                              url=f"https://telegram.dog/{SUPPORT_CHAT}"),
         InlineKeyboardButton(text="📢 Updates",
-                             url="https://telegram.dog/Black_Knights_Union")
+                             url="https://t.me/Hinami_Updates")
     ],
 ]
 
@@ -155,7 +153,7 @@ HELP_STRINGS = """
    ➛ in a group: will redirect you to pm, with all that chat's settings.
 """
 
-DONATE_STRING = """❂ I'm Free for Everyone ❂"""
+DONATE_STRING = """Donate me here @lostdir69"""
 
 IMPORTED = {}
 MIGRATEABLE = []
@@ -290,7 +288,7 @@ async def start(update: Update, context: CallbackContext):
                 ),
                 InlineKeyboardButton(
                     text="📢 Updates",
-                    url="https://telegram.dog/Black_Knights_Union",
+                    url="https://t.me/Hinami_Updates",
                 ),
             ]]),
         )
@@ -364,7 +362,7 @@ async def help_button(update: Update,
                                          callback_data="help_back"),
                     InlineKeyboardButton(
                         text="[► Support ◄]",
-                        url="https://t.me/Black_Knights_Union_Support")
+                        url="https://t.me/tabm10hd")
                 ]]),
             )
 
