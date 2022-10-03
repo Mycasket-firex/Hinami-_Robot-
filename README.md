@@ -1,6 +1,6 @@
 ![Cutiepii](https://graph.org/file/37b904d6dfe2bddb98fe2.jpg)
 
-# 𝑪𝒖𝒕𝒊𝒆𝒑𝒊𝒊 𝑹𝒐𝒃𝒐𝒕 [ BETA ]
+# Hinami Robot
 [![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](http://perso.crans.org/besson/LICENSE.html) [![DeepSource](https://static.deepsource.io/deepsource-badge-light-mini.svg)](https://deepsource.io/gh/Awesome-RJ/CutiepiiRobot/?ref=repository-badge) [![Join Support!](https://img.shields.io/badge/Join%20Channel-!-red)](https://telegram.dog/Black_Knights_Union_Support) [![Open Source Love](https://badges.frapsoft.com/os/v2/open-source.png?v=103)](https://github.com/ellerbrock/open-source-badges/) [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity) [![GitHub contributors](https://img.shields.io/github/contributors/Naereen/StrapDown.js.svg)](https://GitHub.com/Awesome-RJ/CutiepiiRobot/graphs/contributors/)
 
 A modular telegram Python bot running on python3 with an sqlalchemy, Redis, mongodb database.
@@ -24,7 +24,7 @@ This repo was just reamped to suit an Anime-centric community. All original cred
 
 ### ╔═━「 Creator Info/Credits 」
 
-+ ➢ [Rajkumar](https://github.com/Awesome-RJ) : OWNER | DEV
++ ➢ [Yash Rajput](https://github.com/flashokillerify) : OWNER | DEV
 + ➢ [AkshayRajput](https://github.com/TheHamkerCat) : ARQ MODULES
 + ➢ [TheRealPhoenix](https://github.com/rsktg) : BASE
 + ➢ [DragSama](https://github.com/DragSama) : ANIME
