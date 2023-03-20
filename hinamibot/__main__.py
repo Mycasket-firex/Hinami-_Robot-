@@ -179,13 +179,18 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "Support Group",
                 "https://t.me/darkness_devs",
             ),
+            InlineKeyboardButton(
+                "Announcements",
+                "https://t.me/darkness_devs_updates"
+            ),
         ],
         [
             InlineKeyboardButton(
-                "Announcements",
-                "https://t.me/darkness_devs"
-            ),
+                text="Source Code",
+                url="https://youtu.be/M5V_IXMewl4"
+            )
         ]
+    ]
 
     args = context.args
     uptime = get_readable_time((time.time() - StartTime))
