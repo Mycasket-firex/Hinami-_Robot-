@@ -2,7 +2,7 @@ import threading
 
 from sqlalchemy import Column, String, Integer, BigInteger
 
-from himamibot.modules.sql import BASE, SESSION
+from hinamibot.modules.sql import BASE, SESSION
 
 
 class Approvals(BASE):
