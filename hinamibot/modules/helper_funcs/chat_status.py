@@ -295,6 +295,6 @@ def connection_status(func):
 
 
 # Workaround for circular import with connection.py
-from zerotwobot.modules import connection
+from hinamibot.modules import connection
 
 connected = connection.connected
