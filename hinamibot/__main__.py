@@ -4,7 +4,7 @@ import time
 import re
 import random
 
-from zerotwobot import (
+from hinamibot import (
     ALIVE_TEXT,
     ALLOW_EXCL,
     CERT_PATH,
@@ -94,7 +94,7 @@ CHAT_SETTINGS = {}
 USER_SETTINGS = {}
 
 for module_name in ALL_MODULES:
-    imported_module = importlib.import_module("zerotwobot.modules." + module_name)
+    imported_module = importlib.import_module("hinamibot.modules." + module_name)
     if not hasattr(imported_module, "__mod_name__"):
         imported_module.__mod_name__ = imported_module.__name__
 
@@ -219,7 +219,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             first_name = update.effective_user.first_name
             await update.effective_message.reply_photo(
-                ZEROTWO_IMG,
+                HINAMI_IMG,
                 caption=escape_markdown(f"""                
                 Hey There {first_name}. \
                 \nI'm {context.bot.first_name}, made specifically to manage your group and have more fun than ever. \
