@@ -8,7 +8,7 @@ from telegram.helpers import mention_html
 
 from hinamibot import DRAGONS, application
 from hinamibot.modules.disable import DisableAbleCommandHandler
-from zerotwobot.modules.helper_funcs.chat_status import (
+from hinamibot.modules.helper_funcs.chat_status import (
     check_admin,
     connection_status,
     ADMIN_CACHE,
@@ -18,8 +18,8 @@ from hinamibot.modules.helper_funcs.extraction import (
     extract_user,
     extract_user_and_text,
 )
-from zerotwobot.modules.log_channel import loggable
-from zerotwobot.modules.helper_funcs.alternate import send_message
+from hinamibot.modules.log_channel import loggable
+from hinamibot.modules.helper_funcs.alternate import send_message
 
 
 
