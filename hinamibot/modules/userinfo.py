@@ -15,7 +15,7 @@ from telethon.tl.functions.channels import GetFullChannelRequest
 from telethon.tl.types import ChannelParticipantsAdmins
 from hinamibot import (DEV_USERS, DRAGONS, INFOPIC, LOGGER, OWNER_ID,
                         application)
-from hinamibot import telethn as ZerotwoTelethonClient
+from hinamibot import telethn as HinamiTelethonClient
 from hinamibot.__main__ import STATS, TOKEN, USER_INFO
 from hinamibot.modules.disable import DisableAbleCommandHandler
 from hinamibot.modules.helper_funcs.chat_status import check_admin
@@ -68,7 +68,7 @@ async def get_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     return
 
-@ZerotwoTelethonClient.on(
+@HinamiTelethonClient.on(
     events.NewMessage(
         pattern="/ginfo ", from_users=(DRAGONS or []),
     ),
