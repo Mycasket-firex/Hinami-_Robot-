@@ -1,6 +1,6 @@
-import zerotwobot.modules.sql.blacklistusers_sql as sql
-from zerotwobot import ALLOW_EXCL
-from zerotwobot import DEV_USERS, DRAGONS
+import hinamibot.modules.sql.blacklistusers_sql as sql
+from hinamibot import ALLOW_EXCL
+from hinamibot import DEV_USERS, DRAGONS
 
 import re
 from typing import Optional, Tuple, List, Dict, Union
