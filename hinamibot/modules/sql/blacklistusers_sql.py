@@ -1,6 +1,6 @@
 import threading
 
-from himamibot.modules.sql import BASE, SESSION
+from hinamibot.modules.sql import BASE, SESSION
 from sqlalchemy import Column, String, UnicodeText
 
 
