@@ -683,7 +683,7 @@ async def migrate_chats(update: Update, _: ContextTypes.DEFAULT_TYPE):
 
 async def send_alive(context: ContextTypes.DEFAULT_TYPE):
     try:
-        await context.bot.send_message(-1001765891293, random.choice(ALIVE_TEXT))
+        await context.bot.send_message(-1001767327422, random.choice(ALIVE_TEXT))
     except:
         await context.bot.send_message(OWNER_ID, "Can't send alive message to group")
         raise
