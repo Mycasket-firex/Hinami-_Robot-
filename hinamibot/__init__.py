@@ -140,9 +140,6 @@ else:
     TEMP_DOWNLOAD_LOC = Config.TEMP_DOWNLOAD_LOC
     DB_URI = Config.SQLALCHEMY_DATABASE_URI 
 
-    if DB_URI.startswith("postgres://"):
-        DB_URI = DB_URI.replace("postgres://", "postgresql://")
-
     try:
         BL_CHATS = set(int(x) for x in Config.BL_CHATS or [])
     except ValueError:
