@@ -6,6 +6,6 @@ RUN  mkdir  /root/hinamibot/bin/
 WORKDIR  /root/hinamibot/
 
 COPY  ./hinamibot/elevated_users.json* ./hinamibot/config.py* /root/hinamibot/hinamibot/
-RUN pip3 install -r requirements.txt
+RUN pip3 install -r requirements.txt --no-cache-dir
 
 CMD ["python3", "-m", "himamibot"]
