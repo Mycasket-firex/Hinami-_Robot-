@@ -23,10 +23,6 @@ except:
 
 load_dotenv()
 
-try:
-    LOGGER_LEVEL = 1
-except:
-    LOGGER_LEVEL = 1
 
 StartTime = time.time()
 
@@ -34,7 +30,7 @@ StartTime = time.time()
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[logging.FileHandler("log.txt"), logging.StreamHandler()],
-    level=LOGGER_LEVEL,
+    level=1,
 )
 
 LOGGER = logging.getLogger(__name__)
