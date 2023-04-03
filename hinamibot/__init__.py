@@ -24,9 +24,9 @@ except:
 load_dotenv()
 
 try:
-    LOGGER_LEVEL = int(os.environ.get("LOGGER_LEVEL"))
+    LOGGER_LEVEL = 1
 except:
-    LOGGER_LEVEL = int(config.LOGGER_LEVEL)
+    LOGGER_LEVEL = 1
 
 StartTime = time.time()
 
@@ -154,15 +154,6 @@ else:
         raise Exception("Your blacklisted chats list does not contain valid integers.")
         
 DEV_USERS.add(OWNER_ID)
-ALIVE_TEXT = [
-    "Hey developer's I'm online now.",
-    "Hey fellas how ya doing",
-    "Woah this day going to be so good!",
-    "Wait guys I'm not dead yet, so count me in",
-    "Sending alive message became my hobby, here goes another one",
-    "What a worst day! Hey guys, How ya doing",
-    "Somebody help, this server is killing me"
-]
 
 telethn = TelegramClient(MemorySession(), API_ID, API_HASH)
 
