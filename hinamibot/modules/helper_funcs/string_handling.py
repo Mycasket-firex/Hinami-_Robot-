@@ -20,12 +20,12 @@ MATCH_MD = re.compile(
     r"_(.*?)_|"
     r"`(.*?)`|"
     r"(?<!\\)(\[.*?\])(\(.*?\))|"
-    r"(?P<esc>[*_`\[])",
-)
+    r"(?P<esc>[*_`\[])", )
 
 # regex to find []() links -> hyperlinks/buttons
 LINK_REGEX = re.compile(r"(?<!\\)\[.+?\]\((.*?)\)")
-BTN_URL_REGEX = re.compile(r"(\[([^\[]+?)\]\(buttonurl:(?:/{0,2})(.+?)(:same)?\))")
+BTN_URL_REGEX = re.compile(
+    r"(\[([^\[]+?)\]\(buttonurl:(?:/{0,2})(.+?)(:same)?\))")
 _EMOJI_REGEXP = None
 
 
@@ -40,9 +40,8 @@ def _selective_escape(to_parse: str) -> str:
     for match in MATCH_MD.finditer(to_parse):
         if match.group("esc"):
             ent_start = match.start()
-            to_parse = (
-                to_parse[: ent_start + offset] + "\\" + to_parse[ent_start + offset :]
-            )
+            to_parse = (to_parse[:ent_start + offset] + "\\" +
+                        to_parse[ent_start + offset:])
             offset += 1
     return to_parse
 
@@ -53,6 +52,7 @@ def get_emoji_regexp():
         emojis = sorted(unicode_codes.EMOJI_DATA, key=len, reverse=True)
         pattern = u'(' + u'|'.join(re.escape(u) for u in emojis) + u')'
     return re.compile(pattern)
+
 
 # This is a fun one.
 def _calc_emoji_offset(to_calc) -> int:
@@ -66,7 +66,9 @@ def _calc_emoji_offset(to_calc) -> int:
 
 
 def markdown_parser(
-    txt: str, entities: Dict[MessageEntity, str] = None, offset: int = 0,
+    txt: str,
+    entities: Dict[MessageEntity, str] = None,
+    offset: int = 0,
 ) -> str:
     """
     Parse a string, escaping all invalid markdown entities.
@@ -106,29 +108,30 @@ def markdown_parser(
             # URL handling -> do not escape if in [](), escape otherwise.
             if ent.type == "url":
                 if any(
-                    match.start(1) <= start and end <= match.end(1)
-                    for match in LINK_REGEX.finditer(txt)
-                ):
+                        match.start(1) <= start and end <= match.end(1)
+                        for match in LINK_REGEX.finditer(txt)):
                     continue
                 # else, check the escapes between the prev and last and forcefully escape the url to avoid mangling
                 else:
                     # TODO: investigate possible offset bug when lots of emoji are present
-                    res += _selective_escape(txt[prev:start] or "") + escape_markdown(
-                        ent_text, 2
-                    )
+                    res += _selective_escape(
+                        txt[prev:start] or "") + escape_markdown(ent_text, 2)
 
             # code handling
             elif ent.type == "code":
-                res += _selective_escape(txt[prev:start]) + "`" + ent_text + "`"
+                res += _selective_escape(
+                    txt[prev:start]) + "`" + ent_text + "`"
 
             # handle markdown/html links
             elif ent.type == "text_link":
                 res += _selective_escape(txt[prev:start]) + "[{}]({})".format(
-                    ent_text, ent.url,
+                    ent_text,
+                    ent.url,
                 )
             # handle spoiler
             elif ent.type == "spoiler":
-                res += _selective_escape(txt[prev:start]) + "||"+ent_text+"||"
+                res += _selective_escape(
+                    txt[prev:start]) + "||" + ent_text + "||"
 
             end += 1
 
@@ -143,7 +146,9 @@ def markdown_parser(
 
 
 def button_markdown_parser(
-    txt: str, entities: Dict[MessageEntity, str] = None, offset: int = 0,
+    txt: str,
+    entities: Dict[MessageEntity, str] = None,
+    offset: int = 0,
 ) -> (str, List):
     markdown_note = markdown_parser(txt, entities, offset)
     prev = 0
@@ -160,8 +165,9 @@ def button_markdown_parser(
         # if even, not escaped -> create button
         if n_escapes % 2 == 0:
             # create a thruple with button label, url, and newline status
-            buttons.append((match.group(2), match.group(3), bool(match.group(4))))
-            note_data += markdown_note[prev : match.start(1)]
+            buttons.append(
+                (match.group(2), match.group(3), bool(match.group(4))))
+            note_data += markdown_note[prev:match.start(1)]
             prev = match.end(1)
         # if odd, escaped -> move along
         else:
@@ -189,7 +195,7 @@ def escape_invalid_curly_brackets(text: str, valids: List[str]) -> str:
                         success = True
                         break
                 if success:
-                    new_text += text[idx : idx + len(v) + 2]
+                    new_text += text[idx:idx + len(v) + 2]
                     idx += len(v) + 2
                     continue
                 else:
@@ -222,9 +228,8 @@ def split_quotes(text: str) -> List:
     while counter < len(text):
         if text[counter] == "\\":
             counter += 1
-        elif text[counter] == text[0] or (
-            text[0] == SMART_OPEN and text[counter] == SMART_CLOSE
-        ):
+        elif text[counter] == text[0] or (text[0] == SMART_OPEN
+                                          and text[counter] == SMART_CLOSE):
             break
         counter += 1
     else:
@@ -233,7 +238,7 @@ def split_quotes(text: str) -> List:
     # 1 to avoid starting quote, and counter is exclusive so avoids ending
     key = remove_escapes(text[1:counter].strip())
     # index will be in range, or `else` would have been executed and returned
-    rest = text[counter + 1 :].strip()
+    rest = text[counter + 1:].strip()
     if not key:
         key = text[0] + text[0]
     return list(filter(None, [key, rest]))
@@ -262,6 +267,7 @@ def escape_chars(text: str, to_escape: List[str]) -> str:
         new_text += x
     return new_text
 
+
 async def extract_time(message, time_val):
     if any(time_val.endswith(unit) for unit in ("m", "h", "d")):
         unit = time_val[-1]
@@ -283,14 +289,11 @@ async def extract_time(message, time_val):
     else:
         await message.reply_text(
             "Invalid time type specified. Expected m,h, or d, got: {}".format(
-                time_val[-1],
-            ),
-        )
+                time_val[-1], ), )
         return ""
 
 
-
-def markdown_to_html(text:str):
+def markdown_to_html(text: str):
     text = text.replace("*", "**")
     text = text.replace("`", "```")
     text = text.replace("~", "~~")
@@ -298,8 +301,9 @@ def markdown_to_html(text:str):
     spoiler_pattern = re.compile(r"\|\|(?=\S)(.+?)(?<=\S)\|\|", re.S)
     text = spoiler_pattern.sub(r"<tg-spoiler>\1</tg-spoiler>", text)
 
-
     _html = markdown2.markdown(text, extras=["strike", "underline"])
     return bleach.clean(
-        _html, tags=["strong", "em", "a", "code", "pre", "strike", "u", "tg-spoiler"], strip=True,
+        _html,
+        tags=["strong", "em", "a", "code", "pre", "strike", "u", "tg-spoiler"],
+        strip=True,
     )[:-1]

@@ -23,7 +23,8 @@ class ErrorsDict(dict):
 
     def __contains__(self, error):
         self.raw.append(error)
-        error.identifier = "".join(random.choices("ABCDEFGHIJKLMNOPQRSTUVWXYZ", k=5))
+        error.identifier = "".join(
+            random.choices("ABCDEFGHIJKLMNOPQRSTUVWXYZ", k=5))
         for e in self:
             if type(e) is type(error) and e.args == error.args:
                 self[e] += 1
@@ -47,7 +48,9 @@ async def error_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         stringio = io.StringIO()
         pretty_errors.output_stderr = stringio
         output = pretty_errors.excepthook(
-            type(context.error), context.error, context.error.__traceback__,
+            type(context.error),
+            context.error,
+            context.error.__traceback__,
         )
         pretty_errors.output_stderr = sys.stderr
         pretty_error = stringio.getvalue()
@@ -55,7 +58,9 @@ async def error_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except:
         pretty_error = "Failed to create pretty error."
     tb_list = traceback.format_exception(
-        None, context.error, context.error.__traceback__,
+        None,
+        context.error,
+        context.error.__traceback__,
     )
     tb = "".join(tb_list)
     pretty_message = (
@@ -66,12 +71,12 @@ async def error_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"Chat: {update.effective_chat.title if update.effective_chat else ''} {update.effective_chat.id if update.effective_chat else ''}\n"
         f"Callback data: {update.callback_query.data if update.callback_query else None}\n"
         f"Message: {update.effective_message.text if update.effective_message else 'No message'}\n\n"
-        f"Full Traceback: {tb}"
-    )
+        f"Full Traceback: {tb}")
     async with AsyncClient() as client:
         r = await client.post(
-        "https://nekobin.com/api/documents", json={"content": pretty_message},
-    )
+            "https://nekobin.com/api/documents",
+            json={"content": pretty_message},
+        )
     key = r.json()
     e = html.escape(f"{context.error}")
     if not key.get("result", {}).get("key"):
@@ -79,9 +84,10 @@ async def error_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f.write(pretty_message)
         await context.bot.send_document(
             OWNER_ID,
-                open("error.txt", "rb"),
-                caption=f"#{context.error.identifier}\n<b>An unknown error occured:</b>\n<code>{e}</code>",
-                parse_mode="html",
+            open("error.txt", "rb"),
+            caption=
+            f"#{context.error.identifier}\n<b>An unknown error occured:</b>\n<code>{e}</code>",
+            parse_mode="html",
         )
         if os.path.isfile("error.txt"):
             os.remove("error.txt")
@@ -90,10 +96,10 @@ async def error_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     url = f"https://nekobin.com/{key}.py"
     await context.bot.send_message(
         OWNER_ID,
-            text=f"#{context.error.identifier}\n<b>An unknown error occured:</b>\n<code>{e}</code>",
-            reply_markup=InlineKeyboardMarkup(
-                [[InlineKeyboardButton("Nekobin", url=url)]],
-            ),
+        text=
+        f"#{context.error.identifier}\n<b>An unknown error occured:</b>\n<code>{e}</code>",
+        reply_markup=InlineKeyboardMarkup(
+            [[InlineKeyboardButton("Nekobin", url=url)]], ),
         parse_mode="html",
     )
 
@@ -102,7 +108,9 @@ async def list_errors(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id not in DEV_USERS:
         return
     e = {
-        k: v for k, v in sorted(errors.items(), key=lambda item: item[1], reverse=True)
+        k: v
+        for k, v in sorted(
+            errors.items(), key=lambda item: item[1], reverse=True)
     }
     msg = "<b>Errors List:</b>\n"
     for x in e:
@@ -116,8 +124,8 @@ async def list_errors(update: Update, context: ContextTypes.DEFAULT_TYPE):
             open("errors_msg.txt", "rb"),
             caption=f"Too many errors have occured..",
             parse_mode="html",
-            message_thread_id=update.effective_message.message_thread_id if update.effective_chat.is_forum else None
-        )
+            message_thread_id=update.effective_message.message_thread_id
+            if update.effective_chat.is_forum else None)
         if os.path.isfile("errors_msg.txt"):
             os.remove("errors_msg.txt")
         return

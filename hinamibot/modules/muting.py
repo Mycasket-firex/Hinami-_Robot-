@@ -2,11 +2,9 @@ import html
 from typing import Optional, Union
 
 from hinamibot import LOGGER, application
-from hinamibot.modules.helper_funcs.chat_status import (
-    connection_status,
-    is_user_admin,
-    check_admin
-)
+from hinamibot.modules.helper_funcs.chat_status import (connection_status,
+                                                        is_user_admin,
+                                                        check_admin)
 from hinamibot.modules.helper_funcs.extraction import (
     extract_user,
     extract_user_and_text,
@@ -44,6 +42,7 @@ async def check_user(user_id: int, bot: Bot, chat: Chat) -> Union[str, None]:
 
     return None
 
+
 @connection_status
 @loggable
 @check_admin(permission="can_restrict_members", is_both=True)
@@ -68,8 +67,7 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         f"<b>{html.escape(chat.title)}:</b>\n"
         f"#MUTE\n"
         f"<b>Admin:</b> {mention_html(user.id, user.first_name)}\n"
-        f"<b>User:</b> {mention_html(member.user.id, member.user.first_name)}"
-    )
+        f"<b>User:</b> {mention_html(member.user.id, member.user.first_name)}")
 
     if reason:
         log += f"\n<b>Reason:</b> {reason}"
@@ -81,14 +79,15 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
             chat.id,
             f"Muted <b>{html.escape(member.user.first_name)}</b> with no expiration date!",
             parse_mode=ParseMode.HTML,
-            message_thread_id=message.message_thread_id if chat.is_forum else None
-        )
+            message_thread_id=message.message_thread_id
+            if chat.is_forum else None)
         return log
 
     else:
         await message.reply_text("This user is already muted!")
 
     return ""
+
 
 @connection_status
 @loggable
@@ -110,7 +109,8 @@ async def unmute(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
 
     if member.status not in [ChatMember.LEFT, ChatMember.BANNED]:
         if member.status != ChatMember.RESTRICTED:
-            await message.reply_text("This user already has the right to speak.")
+            await message.reply_text(
+                "This user already has the right to speak.")
         else:
             chat_permissions = ChatPermissions(
                 can_send_messages=True,
@@ -123,15 +123,16 @@ async def unmute(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
                 can_add_web_page_previews=True,
             )
             try:
-                await bot.restrict_chat_member(chat.id, int(user_id), chat_permissions)
+                await bot.restrict_chat_member(chat.id, int(user_id),
+                                               chat_permissions)
             except BadRequest:
                 pass
             await bot.sendMessage(
                 chat.id,
                 f"I shall allow <b>{html.escape(member.user.first_name)}</b> to text!",
                 parse_mode=ParseMode.HTML,
-                message_thread_id=message.message_thread_id if chat.is_forum else None
-            )
+                message_thread_id=message.message_thread_id
+                if chat.is_forum else None)
             return (
                 f"<b>{html.escape(chat.title)}:</b>\n"
                 f"#UNMUTE\n"
@@ -141,11 +142,9 @@ async def unmute(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     else:
         await message.reply_text(
             "This user isn't even in the chat, unmuting them won't make them talk more than they "
-            "already do!",
-        )
+            "already do!", )
 
     return ""
-
 
 
 @connection_status
@@ -167,7 +166,8 @@ async def temp_mute(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     member = await chat.get_member(user_id)
 
     if not reason:
-        await message.reply_text("You haven't specified a time to mute this user for!")
+        await message.reply_text(
+            "You haven't specified a time to mute this user for!")
         return ""
 
     split_reason = reason.split(None, 1)
@@ -188,8 +188,7 @@ async def temp_mute(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         f"#TEMP MUTED\n"
         f"<b>Admin:</b> {mention_html(user.id, user.first_name)}\n"
         f"<b>User:</b> {mention_html(member.user.id, member.user.first_name)}\n"
-        f"<b>Time:</b> {time_val}"
-    )
+        f"<b>Time:</b> {time_val}")
     if reason:
         log += f"\n<b>Reason:</b> {reason}"
 
@@ -197,14 +196,17 @@ async def temp_mute(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         if member.status in [ChatMember.RESTRICTED, ChatMember.MEMBER]:
             chat_permissions = ChatPermissions(can_send_messages=False)
             await bot.restrict_chat_member(
-                chat.id, user_id, chat_permissions, until_date=mutetime,
+                chat.id,
+                user_id,
+                chat_permissions,
+                until_date=mutetime,
             )
             await bot.sendMessage(
                 chat.id,
                 f"Muted <b>{html.escape(member.user.first_name)}</b> for {time_val}!",
                 parse_mode=ParseMode.HTML,
-                message_thread_id=message.message_thread_id if chat.is_forum else None
-            )
+                message_thread_id=message.message_thread_id
+                if chat.is_forum else None)
             return log
         else:
             await message.reply_text("This user is already muted.")
@@ -237,7 +239,9 @@ __help__ = """
 
 MUTE_HANDLER = CommandHandler("mute", mute, block=False)
 UNMUTE_HANDLER = CommandHandler("unmute", unmute, block=False)
-TEMPMUTE_HANDLER = CommandHandler(["tmute", "tempmute"], temp_mute, block=False)
+TEMPMUTE_HANDLER = CommandHandler(["tmute", "tempmute"],
+                                  temp_mute,
+                                  block=False)
 
 application.add_handler(MUTE_HANDLER)
 application.add_handler(UNMUTE_HANDLER)

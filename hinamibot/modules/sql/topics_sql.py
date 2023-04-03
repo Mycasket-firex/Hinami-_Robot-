@@ -3,7 +3,6 @@
 # from hinamibot.modules.sql import BASE, SESSION
 # from sqlalchemy import Column, String, distinct, func
 
-
 # class TopicsAction(BASE):
 #     __tablename__ = "topic_actions"
 #     chat_id = Column(String(14), primary_key=True)
@@ -15,11 +14,9 @@
 #     def __repr__(self):
 #         return "<Chat {} action_topic: {}>".format(self.chat_id, self.action_topic)
 
-
 # TopicsAction.__table__.create(checkfirst=True)
 
 # INSERTION_LOCK = threading.RLock()
-
 
 # def set_action_topic(chat_id: int, action_chat: int) -> int:
 #     with INSERTION_LOCK:
@@ -31,7 +28,6 @@
 #         SESSION.add(action_topic)
 #         SESSION.commit()
 
-
 # def get_action_topic(chat_id: int) -> int | None:
 #     action_topic = SESSION.query(TopicsAction).get(str(chat_id))
 #     ret = None
@@ -40,7 +36,6 @@
 
 #     SESSION.close()
 #     return ret
-
 
 # def del_action_topic(chat_id: int) -> bool:
 #     with INSERTION_LOCK:

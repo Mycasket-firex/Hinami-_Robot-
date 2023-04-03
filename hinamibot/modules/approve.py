@@ -30,7 +30,9 @@ async def approve(update: Update, context: ContextTypes.DEFAULT_TYPE):
         member = await chat.get_member(user_id)
     except BadRequest:
         return ""
-    if member.status in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
+    if member.status in [
+            ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER
+    ]:
         await message.reply_text(
             "User is already admin - locks, blocklists, and antiflood already don't apply to them.",
         )
@@ -50,8 +52,7 @@ async def approve(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"<b>{html.escape(chat.title)}:</b>\n"
         f"#APPROVED\n"
         f"<b>Admin:</b> {mention_html(user.id, user.first_name)}\n"
-        f"<b>User:</b> {mention_html(member.user.id, member.user.first_name)}"
-    )
+        f"<b>User:</b> {mention_html(member.user.id, member.user.first_name)}")
 
     return log_message
 
@@ -74,22 +75,24 @@ async def disapprove(update: Update, context: ContextTypes.DEFAULT_TYPE):
         member = await chat.get_member(user_id)
     except BadRequest:
         return ""
-    if member.status in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
-        await message.reply_text("This user is an admin, they can't be unapproved.")
+    if member.status in [
+            ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER
+    ]:
+        await message.reply_text(
+            "This user is an admin, they can't be unapproved.")
         return ""
     if not sql.is_approved(message.chat_id, user_id):
-        await message.reply_text(f"{member.user.first_name} isn't approved yet!")
+        await message.reply_text(
+            f"{member.user.first_name} isn't approved yet!")
         return ""
     sql.disapprove(message.chat_id, user_id)
     await message.reply_text(
-        f"{member.user.first_name} is no longer approved in {chat_title}.",
-    )
+        f"{member.user.first_name} is no longer approved in {chat_title}.", )
     log_message = (
         f"<b>{html.escape(chat.title)}:</b>\n"
         f"#UNAPPROVED\n"
         f"<b>Admin:</b> {mention_html(user.id, user.first_name)}\n"
-        f"<b>User:</b> {mention_html(member.user.id, member.user.first_name)}"
-    )
+        f"<b>User:</b> {mention_html(member.user.id, member.user.first_name)}")
 
     return log_message
 
@@ -101,7 +104,7 @@ async def approved(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat = update.effective_chat
     msg = "The following users are approved.\n"
     approved_users = sql.list_approved(message.chat_id)
-    
+
     if not approved_users:
         await message.reply_text(f"No users are approved in {chat_title}.")
         return ""
@@ -110,7 +113,7 @@ async def approved(update: Update, context: ContextTypes.DEFAULT_TYPE):
         for i in approved_users:
             member = await chat.get_member(int(i.user_id))
             msg += f"- `{i.user_id}`: {member.user['first_name']}\n"
-        
+
         await message.reply_text(msg, parse_mode=ParseMode.MARKDOWN)
 
 
@@ -121,7 +124,6 @@ async def approval(update: Update, context: ContextTypes.DEFAULT_TYPE):
     args = context.args
     user_id = await extract_user(message, context, args)
 
-    
     if not user_id:
         await message.reply_text(
             "I don't know who you're talking about, you're going to need to specify a user!",
@@ -138,7 +140,6 @@ async def approval(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
 
-
 async def unapproveall(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat = update.effective_chat
     user = update.effective_user
@@ -146,34 +147,33 @@ async def unapproveall(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     approved_users = sql.list_approved(chat.id)
     if not approved_users:
-        await update.effective_message.reply_text(f"No users are approved in {chat.title}.")
+        await update.effective_message.reply_text(
+            f"No users are approved in {chat.title}.")
         return
 
     if member.status != ChatMemberStatus.OWNER and user.id not in DRAGONS:
         await update.effective_message.reply_text(
-            "Only the chat owner can unapprove all users at once.",
-        )
+            "Only the chat owner can unapprove all users at once.", )
     else:
-        buttons = InlineKeyboardMarkup(
+        buttons = InlineKeyboardMarkup([
             [
-                [
-                    InlineKeyboardButton(
-                        text="Unapprove all users", callback_data="unapproveall_user",
-                    ),
-                ],
-                [
-                    InlineKeyboardButton(
-                        text="Cancel", callback_data="unapproveall_cancel",
-                    ),
-                ],
+                InlineKeyboardButton(
+                    text="Unapprove all users",
+                    callback_data="unapproveall_user",
+                ),
             ],
-        )
+            [
+                InlineKeyboardButton(
+                    text="Cancel",
+                    callback_data="unapproveall_cancel",
+                ),
+            ],
+        ], )
         await update.effective_message.reply_text(
             f"Are you sure you would like to unapprove ALL users in {chat.title}? This action cannot be undone.",
             reply_markup=buttons,
             parse_mode=ParseMode.MARKDOWN,
         )
-
 
 
 async def unapproveall_btn(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -186,8 +186,9 @@ async def unapproveall_btn(update: Update, context: ContextTypes.DEFAULT_TYPE):
             approved_users = sql.list_approved(chat.id)
             users = [int(i.user_id) for i in approved_users]
             for user_id in users:
-                sql.disapprove(chat.id, user_id)      
-            await message.edit_text("Successfully Unapproved all user in this Chat.")
+                sql.disapprove(chat.id, user_id)
+            await message.edit_text(
+                "Successfully Unapproved all user in this Chat.")
             return
 
         if member.status == "administrator":
@@ -197,7 +198,8 @@ async def unapproveall_btn(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await query.answer("You need to be admin to do this.")
     elif query.data == "unapproveall_cancel":
         if member.status == "creator" or query.from_user.id in DRAGONS:
-            await message.edit_text("Removing of all approved users has been cancelled.")
+            await message.edit_text(
+                "Removing of all approved users has been cancelled.")
             return ""
         if member.status == "administrator":
             await query.answer("Only owner of the chat can do this.")
@@ -223,8 +225,12 @@ APPROVE = DisableAbleCommandHandler("approve", approve, block=False)
 DISAPPROVE = DisableAbleCommandHandler("unapprove", disapprove, block=False)
 APPROVED = DisableAbleCommandHandler("approved", approved, block=False)
 APPROVAL = DisableAbleCommandHandler("approval", approval, block=False)
-UNAPPROVEALL = DisableAbleCommandHandler("unapproveall", unapproveall, block=False)
-UNAPPROVEALL_BTN = CallbackQueryHandler(unapproveall_btn, pattern=r"unapproveall_.*", block=False)
+UNAPPROVEALL = DisableAbleCommandHandler("unapproveall",
+                                         unapproveall,
+                                         block=False)
+UNAPPROVEALL_BTN = CallbackQueryHandler(unapproveall_btn,
+                                        pattern=r"unapproveall_.*",
+                                        block=False)
 
 application.add_handler(APPROVE)
 application.add_handler(DISAPPROVE)

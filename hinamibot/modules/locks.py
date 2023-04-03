@@ -4,60 +4,83 @@ from typing import Optional
 import hinamibot.modules.sql.locks_sql as sql
 from alphabet_detector import AlphabetDetector
 from telegram import (Chat, ChatPermissions, InlineKeyboardButton,
-                      InlineKeyboardMarkup, Message, MessageEntity,
-                    Update, ChatMemberAdministrator)
+                      InlineKeyboardMarkup, Message, MessageEntity, Update,
+                      ChatMemberAdministrator)
 from telegram.constants import ParseMode
 from telegram.error import BadRequest, TelegramError
-from telegram.ext import (ContextTypes, CallbackQueryHandler,
-                          CommandHandler, filters, MessageHandler)
+from telegram.ext import (ContextTypes, CallbackQueryHandler, CommandHandler,
+                          filters, MessageHandler)
 from telegram.helpers import mention_html
 from hinamibot import DRAGONS, LOGGER, application
 from hinamibot.modules.connection import connected
 from hinamibot.modules.disable import DisableAbleCommandHandler
 from hinamibot.modules.helper_funcs.alternate import (send_message,
-                                                       typing_action)
-from hinamibot.modules.helper_funcs.chat_status import (
-                                                         is_bot_admin,
-                                                         is_user_admin,
-                                                         check_admin,
-                                                         user_not_admin)
+                                                      typing_action)
+from hinamibot.modules.helper_funcs.chat_status import (is_bot_admin,
+                                                        is_user_admin,
+                                                        check_admin,
+                                                        user_not_admin)
 from hinamibot.modules.log_channel import loggable
 from hinamibot.modules.sql.approve_sql import is_approved
 
 ad = AlphabetDetector()
 
 LOCK_TYPES = {
-    "audio": filters.AUDIO,
-    "voice": filters.VOICE,
-    "document": filters.Document.ALL,
-    "video": filters.VIDEO,
-    "contact": filters.CONTACT,
-    "photo": filters.PHOTO,
-    "url": filters.Entity(MessageEntity.URL)
-        | filters.CaptionEntity(MessageEntity.URL),
-    "bots": filters.StatusUpdate.NEW_CHAT_MEMBERS,
-    "forward": filters.FORWARDED,
-    "game": filters.GAME,
-    "location": filters.LOCATION,
-    "egame": filters.Dice.ALL,
-    "rtl": "rtl",
-    "button": "button",
-    "inline": "inline",
-    "phone": filters.Entity(MessageEntity.PHONE_NUMBER) 
-        | filters.CaptionEntity(MessageEntity.PHONE_NUMBER),
-    "command": filters.COMMAND,
-    "email": filters.Entity(MessageEntity.EMAIL) 
-        | filters.CaptionEntity(MessageEntity.EMAIL),
-    "anonchannel": "anonchannel",
-    "forwardchannel": "forwardchannel",
-    "forwardbot": "forwardbot",
+    "audio":
+    filters.AUDIO,
+    "voice":
+    filters.VOICE,
+    "document":
+    filters.Document.ALL,
+    "video":
+    filters.VIDEO,
+    "contact":
+    filters.CONTACT,
+    "photo":
+    filters.PHOTO,
+    "url":
+    filters.Entity(MessageEntity.URL)
+    | filters.CaptionEntity(MessageEntity.URL),
+    "bots":
+    filters.StatusUpdate.NEW_CHAT_MEMBERS,
+    "forward":
+    filters.FORWARDED,
+    "game":
+    filters.GAME,
+    "location":
+    filters.LOCATION,
+    "egame":
+    filters.Dice.ALL,
+    "rtl":
+    "rtl",
+    "button":
+    "button",
+    "inline":
+    "inline",
+    "phone":
+    filters.Entity(MessageEntity.PHONE_NUMBER)
+    | filters.CaptionEntity(MessageEntity.PHONE_NUMBER),
+    "command":
+    filters.COMMAND,
+    "email":
+    filters.Entity(MessageEntity.EMAIL)
+    | filters.CaptionEntity(MessageEntity.EMAIL),
+    "anonchannel":
+    "anonchannel",
+    "forwardchannel":
+    "forwardchannel",
+    "forwardbot":
+    "forwardbot",
     #"invitelink": ,
-    "videonote": filters.VIDEO_NOTE,
-    "emojicustom": filters.Entity(MessageEntity.CUSTOM_EMOJI) 
-        | filters.CaptionEntity(MessageEntity.CUSTOM_EMOJI),
-    "stickerpremium": filters.Sticker.PREMIUM,
-    "stickeranimated": filters.Sticker.ANIMATED,
-
+    "videonote":
+    filters.VIDEO_NOTE,
+    "emojicustom":
+    filters.Entity(MessageEntity.CUSTOM_EMOJI)
+    | filters.CaptionEntity(MessageEntity.CUSTOM_EMOJI),
+    "stickerpremium":
+    filters.Sticker.PREMIUM,
+    "stickeranimated":
+    filters.Sticker.ANIMATED,
 }
 
 LOCK_CHAT_RESTRICTION = {
@@ -71,20 +94,40 @@ LOCK_CHAT_RESTRICTION = {
         "can_invite_users": False,
         "can_pin_messages": False,
         "can_manage_topics": False,
-
     },
-    "messages": {"can_send_messages": False},
-    "media": {"can_send_media_messages": False},
-    "sticker": {"can_send_other_messages": False},
-    "gif": {"can_send_other_messages": False},
-    "poll": {"can_send_polls": False},
-    "other": {"can_send_other_messages": False},
-    "previews": {"can_add_web_page_previews": False},
-    "info": {"can_change_info": False},
-    "invite": {"can_invite_users": False},
-    "pin": {"can_pin_messages": False},
-    "topics": {"can_manage_topics": False},
-
+    "messages": {
+        "can_send_messages": False
+    },
+    "media": {
+        "can_send_media_messages": False
+    },
+    "sticker": {
+        "can_send_other_messages": False
+    },
+    "gif": {
+        "can_send_other_messages": False
+    },
+    "poll": {
+        "can_send_polls": False
+    },
+    "other": {
+        "can_send_other_messages": False
+    },
+    "previews": {
+        "can_add_web_page_previews": False
+    },
+    "info": {
+        "can_change_info": False
+    },
+    "invite": {
+        "can_invite_users": False
+    },
+    "pin": {
+        "can_pin_messages": False
+    },
+    "topics": {
+        "can_manage_topics": False
+    },
 }
 
 UNLOCK_CHAT_RESTRICTION = {
@@ -97,17 +140,39 @@ UNLOCK_CHAT_RESTRICTION = {
         "can_invite_users": True,
         "can_manage_topics": True,
     },
-    "messages": {"can_send_messages": True},
-    "media": {"can_send_media_messages": True},
-    "sticker": {"can_send_other_messages": True},
-    "gif": {"can_send_other_messages": True},
-    "poll": {"can_send_polls": True},
-    "other": {"can_send_other_messages": True},
-    "previews": {"can_add_web_page_previews": True},
-    "info": {"can_change_info": True},
-    "invite": {"can_invite_users": True},
-    "pin": {"can_pin_messages": True},
-    "topics": {"can_manage_topics": True},
+    "messages": {
+        "can_send_messages": True
+    },
+    "media": {
+        "can_send_media_messages": True
+    },
+    "sticker": {
+        "can_send_other_messages": True
+    },
+    "gif": {
+        "can_send_other_messages": True
+    },
+    "poll": {
+        "can_send_polls": True
+    },
+    "other": {
+        "can_send_other_messages": True
+    },
+    "previews": {
+        "can_add_web_page_previews": True
+    },
+    "info": {
+        "can_change_info": True
+    },
+    "invite": {
+        "can_invite_users": True
+    },
+    "pin": {
+        "can_pin_messages": True
+    },
+    "topics": {
+        "can_manage_topics": True
+    },
 }
 
 PERM_GROUP = 1
@@ -116,7 +181,13 @@ REST_GROUP = 2
 
 # NOT ASYNC
 async def restr_members(
-    bot, chat_id, members, messages=False, media=False, other=False, previews=False,
+    bot,
+    chat_id,
+    members,
+    messages=False,
+    media=False,
+    other=False,
+    previews=False,
 ):
     for mem in members:
         if mem.user in DRAGONS:
@@ -132,14 +203,20 @@ async def restr_members(
                     can_send_media_messages=media,
                     can_send_other_messages=other,
                     can_add_web_page_previews=previews,
-            ))
+                ))
         except TelegramError:
             pass
 
 
 # NOT ASYNC
 async def unrestr_members(
-    bot, chat_id, members, messages=True, media=True, other=True, previews=True,
+    bot,
+    chat_id,
+    members,
+    messages=True,
+    media=True,
+    other=True,
+    previews=True,
 ):
     for mem in members:
         try:
@@ -151,20 +228,16 @@ async def unrestr_members(
                     can_send_media_messages=media,
                     can_send_other_messages=other,
                     can_add_web_page_previews=previews,
-            ))
+                ))
         except TelegramError:
             pass
-
 
 
 async def locktypes(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.effective_message.reply_text(
         "\n • ".join(
-            ["Locks available: "]
-            + sorted(list(LOCK_TYPES) + list(LOCK_CHAT_RESTRICTION)),
-        ),
-    )
-
+            ["Locks available: "] +
+            sorted(list(LOCK_TYPES) + list(LOCK_CHAT_RESTRICTION)), ), )
 
 
 @check_admin(permission="can_delete_messages", is_both=True)
@@ -179,12 +252,17 @@ async def lock(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         ltype = args[0].lower()
         if ltype in LOCK_TYPES:
             # Connection check
-            conn = await connected(context.bot, update, chat, user.id, need_admin=True)
+            conn = await connected(context.bot,
+                                   update,
+                                   chat,
+                                   user.id,
+                                   need_admin=True)
             if conn:
                 chat = await application.bot.getChat(conn)
                 chat_id = conn
                 chat_name = chat.title
-                text = "Locked {} for non-admins in {}!".format(ltype, chat_name)
+                text = "Locked {} for non-admins in {}!".format(
+                    ltype, chat_name)
             else:
                 if update.effective_message.chat.type == "private":
                     await send_message(
@@ -197,28 +275,33 @@ async def lock(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
                 chat_name = update.effective_message.chat.title
                 text = "Locked {} for non-admins!".format(ltype)
             sql.update_lock(chat.id, ltype, locked=True)
-            await send_message(update.effective_message, text, parse_mode="markdown")
+            await send_message(update.effective_message,
+                               text,
+                               parse_mode="markdown")
 
-            return (
-                "<b>{}:</b>"
-                "\n#LOCK"
-                "\n<b>Admin:</b> {}"
-                "\nLocked <code>{}</code>.".format(
-                    html.escape(chat.title),
-                    mention_html(user.id, user.first_name),
-                    ltype,
-                )
-            )
+            return ("<b>{}:</b>"
+                    "\n#LOCK"
+                    "\n<b>Admin:</b> {}"
+                    "\nLocked <code>{}</code>.".format(
+                        html.escape(chat.title),
+                        mention_html(user.id, user.first_name),
+                        ltype,
+                    ))
 
         elif ltype in LOCK_CHAT_RESTRICTION:
             # Connection check
-            conn = await connected(context.bot, update, chat, user.id, need_admin=True)
+            conn = await connected(context.bot,
+                                   update,
+                                   chat,
+                                   user.id,
+                                   need_admin=True)
             if conn:
                 chat = await application.bot.getChat(conn)
                 chat_id = conn
                 chat_name = chat.title
                 text = "Locked {} for all non-admins in {}!".format(
-                    ltype, chat_name,
+                    ltype,
+                    chat_name,
                 )
             else:
                 if update.effective_message.chat.type == "private":
@@ -233,7 +316,7 @@ async def lock(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
                 text = "Locked {} for all non-admins!".format(ltype)
 
             chat_obj = await context.bot.getChat(chat_id)
-            current_permission = chat_obj.permissions                
+            current_permission = chat_obj.permissions
             await context.bot.set_chat_permissions(
                 chat_id=chat_id,
                 permissions=get_permission_list(
@@ -241,32 +324,34 @@ async def lock(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
                     LOCK_CHAT_RESTRICTION[ltype.lower()],
                 ),
             )
-            
-            await context.bot.restrict_chat_member(chat.id, int(777000), permissions=ChatPermissions(
-                can_send_messages=True,
-                can_send_media_messages=True,
-                can_send_other_messages=True,
-                can_add_web_page_previews=True))
 
-            await context.bot.restrict_chat_member(chat.id, int(1087968824), permissions=ChatPermissions(
-                can_send_messages=True,
-                can_send_media_messages=True,
-                can_send_other_messages=True,
-                can_add_web_page_previews=True))
+            await context.bot.restrict_chat_member(
+                chat.id,
+                int(777000),
+                permissions=ChatPermissions(can_send_messages=True,
+                                            can_send_media_messages=True,
+                                            can_send_other_messages=True,
+                                            can_add_web_page_previews=True))
 
+            await context.bot.restrict_chat_member(
+                chat.id,
+                int(1087968824),
+                permissions=ChatPermissions(can_send_messages=True,
+                                            can_send_media_messages=True,
+                                            can_send_other_messages=True,
+                                            can_add_web_page_previews=True))
 
-
-            await send_message(update.effective_message, text, parse_mode="markdown")
-            return (
-                "<b>{}:</b>"
-                "\n#Permission_LOCK"
-                "\n<b>Admin:</b> {}"
-                "\nLocked <code>{}</code>.".format(
-                    html.escape(chat.title),
-                    mention_html(user.id, user.first_name),
-                    ltype,
-                )
-            )
+            await send_message(update.effective_message,
+                               text,
+                               parse_mode="markdown")
+            return ("<b>{}:</b>"
+                    "\n#Permission_LOCK"
+                    "\n<b>Admin:</b> {}"
+                    "\nLocked <code>{}</code>.".format(
+                        html.escape(chat.title),
+                        mention_html(user.id, user.first_name),
+                        ltype,
+                    ))
 
         else:
             await send_message(
@@ -274,10 +359,10 @@ async def lock(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
                 "What are you trying to lock...? Try /locktypes for the list of lockables",
             )
     else:
-        await send_message(update.effective_message, "What are you trying to lock...?")
+        await send_message(update.effective_message,
+                           "What are you trying to lock...?")
 
     return ""
-
 
 
 @check_admin(permission="can_delete_messages", is_both=True)
@@ -293,12 +378,17 @@ async def unlock(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         ltype = args[0].lower()
         if ltype in LOCK_TYPES:
             # Connection check
-            conn = await connected(context.bot, update, chat, user.id, need_admin=True)
+            conn = await connected(context.bot,
+                                   update,
+                                   chat,
+                                   user.id,
+                                   need_admin=True)
             if conn:
                 chat = await application.bot.getChat(conn)
                 chat_id = conn
                 chat_name = chat.title
-                text = "Unlocked {} for everyone in {}!".format(ltype, chat_name)
+                text = "Unlocked {} for everyone in {}!".format(
+                    ltype, chat_name)
             else:
                 if update.effective_message.chat.type == "private":
                     await send_message(
@@ -311,26 +401,31 @@ async def unlock(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
                 chat_name = update.effective_message.chat.title
                 text = "Unlocked {} for everyone!".format(ltype)
             sql.update_lock(chat.id, ltype, locked=False)
-            await send_message(update.effective_message, text, parse_mode="markdown")
-            return (
-                "<b>{}:</b>"
-                "\n#UNLOCK"
-                "\n<b>Admin:</b> {}"
-                "\nUnlocked <code>{}</code>.".format(
-                    html.escape(chat.title),
-                    mention_html(user.id, user.first_name),
-                    ltype,
-                )
-            )
+            await send_message(update.effective_message,
+                               text,
+                               parse_mode="markdown")
+            return ("<b>{}:</b>"
+                    "\n#UNLOCK"
+                    "\n<b>Admin:</b> {}"
+                    "\nUnlocked <code>{}</code>.".format(
+                        html.escape(chat.title),
+                        mention_html(user.id, user.first_name),
+                        ltype,
+                    ))
 
         elif ltype in UNLOCK_CHAT_RESTRICTION:
             # Connection check
-            conn = await connected(context.bot, update, chat, user.id, need_admin=True)
+            conn = await connected(context.bot,
+                                   update,
+                                   chat,
+                                   user.id,
+                                   need_admin=True)
             if conn:
                 chat = await application.bot.getChat(conn)
                 chat_id = conn
                 chat_name = chat.title
-                text = "Unlocked {} for everyone in {}!".format(ltype, chat_name)
+                text = "Unlocked {} for everyone in {}!".format(
+                    ltype, chat_name)
             else:
                 if update.effective_message.chat.type == "private":
                     await send_message(
@@ -342,14 +437,14 @@ async def unlock(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
                 chat_id = update.effective_chat.id
                 chat_name = update.effective_message.chat.title
                 text = "Unlocked {} for everyone!".format(ltype)
-            
+
             member = await chat.get_member(context.bot.id)
 
             if isinstance(member, ChatMemberAdministrator):
                 can_change_info = member.can_change_info
             else:
                 can_change_info = True
-            
+
             if not can_change_info:
                 await send_message(
                     update.effective_message,
@@ -359,7 +454,7 @@ async def unlock(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
                 return
 
             chat_obj = await context.bot.getChat(chat_id)
-            current_permission = chat_obj.permissions 
+            current_permission = chat_obj.permissions
             await context.bot.set_chat_permissions(
                 chat_id=chat_id,
                 permissions=get_permission_list(
@@ -368,18 +463,18 @@ async def unlock(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
                 ),
             )
 
-            await send_message(update.effective_message, text, parse_mode="markdown")
+            await send_message(update.effective_message,
+                               text,
+                               parse_mode="markdown")
 
-            return (
-                "<b>{}:</b>"
-                "\n#UNLOCK"
-                "\n<b>Admin:</b> {}"
-                "\nUnlocked <code>{}</code>.".format(
-                    html.escape(chat.title),
-                    mention_html(user.id, user.first_name),
-                    ltype,
-                )
-            )
+            return ("<b>{}:</b>"
+                    "\n#UNLOCK"
+                    "\n<b>Admin:</b> {}"
+                    "\nUnlocked <code>{}</code>.".format(
+                        html.escape(chat.title),
+                        mention_html(user.id, user.first_name),
+                        ltype,
+                    ))
         else:
             await send_message(
                 update.effective_message,
@@ -387,9 +482,8 @@ async def unlock(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
             )
 
     else:
-        await send_message(update.effective_message, "What are you trying to unlock...?")
-
-
+        await send_message(update.effective_message,
+                           "What are you trying to unlock...?")
 
 
 @user_not_admin
@@ -412,7 +506,8 @@ async def del_lockables(update: Update, context: ContextTypes.DEFAULT_TYPE):
                             if excp.message == "Message to delete not found":
                                 pass
                             else:
-                                LOGGER.exception("ERROR in lockables - rtl:caption")
+                                LOGGER.exception(
+                                    "ERROR in lockables - rtl:caption")
                         break
                 if message.text:
                     check = ad.detect_alphabet(u"{}".format(message.text))
@@ -423,7 +518,8 @@ async def del_lockables(update: Update, context: ContextTypes.DEFAULT_TYPE):
                             if excp.message == "Message to delete not found":
                                 pass
                             else:
-                                LOGGER.exception("ERROR in lockables - rtl:text")
+                                LOGGER.exception(
+                                    "ERROR in lockables - rtl:text")
                         break
             continue
         if lockable == "button":
@@ -460,7 +556,8 @@ async def del_lockables(update: Update, context: ContextTypes.DEFAULT_TYPE):
                             if excp.message == "Message to delete not found":
                                 pass
                             else:
-                                LOGGER.exception("ERROR in lockables - forwardchannel")
+                                LOGGER.exception(
+                                    "ERROR in lockables - forwardchannel")
                         break
                 continue
             continue
@@ -474,7 +571,8 @@ async def del_lockables(update: Update, context: ContextTypes.DEFAULT_TYPE):
                             if excp.message == "Message to delete not found":
                                 pass
                             else:
-                                LOGGER.exception("ERROR in lockables - forwardchannel")
+                                LOGGER.exception(
+                                    "ERROR in lockables - forwardchannel")
                         break
                 continue
             continue
@@ -488,14 +586,12 @@ async def del_lockables(update: Update, context: ContextTypes.DEFAULT_TYPE):
                             if excp.message == "Message to delete not found":
                                 pass
                             else:
-                                LOGGER.exception("ERROR in lockables - anonchannel")
+                                LOGGER.exception(
+                                    "ERROR in lockables - anonchannel")
                         break
                 continue
             continue
-        if (
-            filter.check_update(update)
-            and sql.is_locked(chat.id, lockable)
-        ):
+        if (filter.check_update(update) and sql.is_locked(chat.id, lockable)):
             if lockable == "bots":
                 new_members = update.effective_message.new_chat_members
                 for new_mem in new_members:
@@ -554,26 +650,32 @@ async def build_lock_message(chat_id):
             locklist.append("command = `{}`".format(locks.command))
             locklist.append("email = `{}`".format(locks.email))
             locklist.append("anonchannel = `{}`".format(locks.anonchannel))
-            locklist.append("forwardchannel = `{}`".format(locks.forwardchannel))
+            locklist.append("forwardchannel = `{}`".format(
+                locks.forwardchannel))
             locklist.append("forwardbot = `{}`".format(locks.forwardbot))
             locklist.append("videonote = `{}`".format(locks.videonote))
             locklist.append("emojicustom = `{}`".format(locks.emojicustom))
-            locklist.append("stickerpremium = `{}`".format(locks.stickerpremium))
-            locklist.append("stickeranimated = `{}`".format(locks.stickeranimated))
+            locklist.append("stickerpremium = `{}`".format(
+                locks.stickerpremium))
+            locklist.append("stickeranimated = `{}`".format(
+                locks.stickeranimated))
 
     permissions = await application.bot.get_chat(chat_id)
     if isinstance(permissions, Chat):
         permissions = permissions.permissions
-        permslist.append("messages = `{}`".format(permissions.can_send_messages))
-        permslist.append("media = `{}`".format(permissions.can_send_media_messages))
+        permslist.append("messages = `{}`".format(
+            permissions.can_send_messages))
+        permslist.append("media = `{}`".format(
+            permissions.can_send_media_messages))
         permslist.append("poll = `{}`".format(permissions.can_send_polls))
-        permslist.append("other = `{}`".format(permissions.can_send_other_messages))
-        permslist.append("previews = `{}`".format(permissions.can_add_web_page_previews))
+        permslist.append("other = `{}`".format(
+            permissions.can_send_other_messages))
+        permslist.append("previews = `{}`".format(
+            permissions.can_add_web_page_previews))
         permslist.append("info = `{}`".format(permissions.can_change_info))
         permslist.append("invite = `{}`".format(permissions.can_invite_users))
         permslist.append("pin = `{}`".format(permissions.can_pin_messages))
         permslist.append("topics = `{}`".format(permissions.can_manage_topics))
-
 
     if locklist:
         # Ordering lock list
@@ -585,6 +687,7 @@ async def build_lock_message(chat_id):
     for x in permslist:
         res += "\n • {}".format(x)
     return res
+
 
 @typing_action
 @check_admin(is_user=True)
@@ -611,7 +714,9 @@ async def list_locks(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if conn:
         res = res.replace("Locks in", "*{}*".format(chat_name))
 
-    await send_message(update.effective_message, res, parse_mode=ParseMode.MARKDOWN)
+    await send_message(update.effective_message,
+                       res,
+                       parse_mode=ParseMode.MARKDOWN)
 
 
 def get_permission_list(current, new):
@@ -679,12 +784,15 @@ Locking anonchannel will stop anonymous channel from messaging in your group.
 
 __mod_name__ = "Locks"
 
-LOCKTYPES_HANDLER = DisableAbleCommandHandler("locktypes", locktypes, block=False)
-LOCK_HANDLER = CommandHandler("lock", lock, block=False)  # , filters=filters.ChatType.GROUPS)
+LOCKTYPES_HANDLER = DisableAbleCommandHandler("locktypes",
+                                              locktypes,
+                                              block=False)
+LOCK_HANDLER = CommandHandler(
+    "lock", lock, block=False)  # , filters=filters.ChatType.GROUPS)
 UNLOCK_HANDLER = CommandHandler(
-    "unlock", unlock, block=False
-)  # , filters=filters.ChatType.GROUPS)
-LOCKED_HANDLER = CommandHandler("locks", list_locks, block=False)  # , filters=filters.ChatType.GROUPS)
+    "unlock", unlock, block=False)  # , filters=filters.ChatType.GROUPS)
+LOCKED_HANDLER = CommandHandler(
+    "locks", list_locks, block=False)  # , filters=filters.ChatType.GROUPS)
 
 application.add_handler(LOCK_HANDLER)
 application.add_handler(UNLOCK_HANDLER)
@@ -692,5 +800,6 @@ application.add_handler(LOCKTYPES_HANDLER)
 application.add_handler(LOCKED_HANDLER)
 
 application.add_handler(
-    MessageHandler(filters.ALL & filters.ChatType.GROUPS, del_lockables, block=False), PERM_GROUP
-)
+    MessageHandler(filters.ALL & filters.ChatType.GROUPS,
+                   del_lockables,
+                   block=False), PERM_GROUP)

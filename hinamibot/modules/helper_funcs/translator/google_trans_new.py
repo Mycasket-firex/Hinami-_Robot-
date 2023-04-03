@@ -12,7 +12,10 @@ log.addHandler(logging.NullHandler())
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-URLS_SUFFIX = [re.search('translate.google.(.*)', url.strip()).group(1) for url in DEFAULT_SERVICE_URLS]
+URLS_SUFFIX = [
+    re.search('translate.google.(.*)', url.strip()).group(1)
+    for url in DEFAULT_SERVICE_URLS
+]
 URL_SUFFIX_DEFAULT = 'com'
 
 
@@ -101,14 +104,20 @@ class google_translator:
         GOOGLE_TTS_RPC = ["MkEWBc"]
         parameter = [[text.strip(), lang_src, lang_tgt, True], [1]]
         escaped_parameter = json.dumps(parameter, separators=(',', ':'))
-        rpc = [[[random.choice(GOOGLE_TTS_RPC), escaped_parameter, None, "generic"]]]
+        rpc = [[[
+            random.choice(GOOGLE_TTS_RPC), escaped_parameter, None, "generic"
+        ]]]
         espaced_rpc = json.dumps(rpc, separators=(',', ':'))
         # text_urldecode = quote(text.strip())
         freq_initial = "f.req={}&".format(quote(espaced_rpc))
         freq = freq_initial
         return freq
 
-    def translate(self, text, lang_tgt='auto', lang_src='auto', pronounce=False):
+    def translate(self,
+                  text,
+                  lang_tgt='auto',
+                  lang_src='auto',
+                  pronounce=False):
         try:
             lang = LANGUAGES[lang_src]
         except:
@@ -123,19 +132,22 @@ class google_translator:
         if len(text) == 0:
             return ""
         headers = {
-            "Referer": "http://translate.google.{}/".format(self.url_suffix),
+            "Referer":
+            "http://translate.google.{}/".format(self.url_suffix),
             "User-Agent":
-                "Mozilla/5.0 (Windows NT 10.0; WOW64) "
-                "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/47.0.2526.106 Safari/537.36",
-            "Content-Type": "application/x-www-form-urlencoded;charset=utf-8"
+            "Mozilla/5.0 (Windows NT 10.0; WOW64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/47.0.2526.106 Safari/537.36",
+            "Content-Type":
+            "application/x-www-form-urlencoded;charset=utf-8"
         }
         freq = self._package_rpc(text, lang_src, lang_tgt)
-        response = requests.Request(method='POST',
-                                    url=self.url,
-                                    data=freq,
-                                    headers=headers,
-                                    )
+        response = requests.Request(
+            method='POST',
+            url=self.url,
+            data=freq,
+            headers=headers,
+        )
         try:
             if self.proxies == None or type(self.proxies) != dict:
                 self.proxies = {}
@@ -157,12 +169,12 @@ class google_translator:
                         if len(response) == 1:
                             if len(response[0]) > 5:
                                 sentences = response[0][5]
-                            else: ## only url
+                            else:  ## only url
                                 sentences = response[0][0]
                                 if pronounce == False:
                                     return sentences
                                 elif pronounce == True:
-                                    return [sentences,None,None]
+                                    return [sentences, None, None]
                             translate_text = ""
                             for sentence in sentences:
                                 sentence = sentence[0]
@@ -173,7 +185,10 @@ class google_translator:
                             elif pronounce == True:
                                 pronounce_src = (response_[0][0])
                                 pronounce_tgt = (response_[1][0][0][1])
-                                return [translate_text, pronounce_src, pronounce_tgt]
+                                return [
+                                    translate_text, pronounce_src,
+                                    pronounce_tgt
+                                ]
                         elif len(response) == 2:
                             sentences = []
                             for i in response:
@@ -183,7 +198,9 @@ class google_translator:
                             elif pronounce == True:
                                 pronounce_src = (response_[0][0])
                                 pronounce_tgt = (response_[1][0][0][1])
-                                return [sentences, pronounce_src, pronounce_tgt]
+                                return [
+                                    sentences, pronounce_src, pronounce_tgt
+                                ]
                     except Exception as e:
                         raise e
             r.raise_for_status()
@@ -199,16 +216,19 @@ class google_translator:
     def detect(self, text):
         text = str(text)
         if len(text) >= 5000:
-            return log.debug("Warning: Can only detect less than 5000 characters")
+            return log.debug(
+                "Warning: Can only detect less than 5000 characters")
         if len(text) == 0:
             return ""
         headers = {
-            "Referer": "http://translate.google.{}/".format(self.url_suffix),
+            "Referer":
+            "http://translate.google.{}/".format(self.url_suffix),
             "User-Agent":
-                "Mozilla/5.0 (Windows NT 10.0; WOW64) "
-                "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/47.0.2526.106 Safari/537.36",
-            "Content-Type": "application/x-www-form-urlencoded;charset=utf-8"
+            "Mozilla/5.0 (Windows NT 10.0; WOW64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/47.0.2526.106 Safari/537.36",
+            "Content-Type":
+            "application/x-www-form-urlencoded;charset=utf-8"
         }
         freq = self._package_rpc(text)
         response = requests.Request(method='POST',

@@ -6,32 +6,31 @@ from telegram.constants import ParseMode
 from telegram.ext import ContextTypes
 from wikipedia.exceptions import DisambiguationError, PageError
 
+
 async def wiki(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    msg = (
-        update.effective_message.reply_to_message
-        if update.effective_message.reply_to_message and not update.effective_message.reply_to_message.forum_topic_created
-        else update.effective_message
-    )
+    msg = (update.effective_message.reply_to_message
+           if update.effective_message.reply_to_message and
+           not update.effective_message.reply_to_message.forum_topic_created
+           else update.effective_message)
     res = ""
     args = context.args
 
     if not args:
         return await update.effective_message.reply_text(
-            "You should give something to search for :)"
-        )
+            "You should give something to search for :)")
     search = " ".join(args)
     try:
         res = wikipedia.summary(search)
     except DisambiguationError as e:
         await update.message.reply_text(
-            "Disambiguated pages found! Adjust your query accordingly.\n<i>{}</i>".format(
-                e,
-            ),
+            "Disambiguated pages found! Adjust your query accordingly.\n<i>{}</i>"
+            .format(e, ),
             parse_mode=ParseMode.HTML,
         )
     except PageError as e:
         await update.message.reply_text(
-            "<code>{}</code>".format(e), parse_mode=ParseMode.HTML,
+            "<code>{}</code>".format(e),
+            parse_mode=ParseMode.HTML,
         )
     if res:
         result = f"<b>{search}</b>\n\n"
@@ -50,7 +49,9 @@ async def wiki(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
         else:
             await update.message.reply_text(
-                result, parse_mode=ParseMode.HTML, disable_web_page_preview=True,
+                result,
+                parse_mode=ParseMode.HTML,
+                disable_web_page_preview=True,
             )
 
 

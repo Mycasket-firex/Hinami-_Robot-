@@ -35,7 +35,8 @@ async def send_rules(update, chat_id, from_pm=False):
                 user.id,
                 "The rules shortcut for this chat hasn't been set properly! Ask admins to "
                 "fix this.\nMaybe they forgot the hyphen in ID",
-                message_thread_id= update.effective_message.message_thread_id if chat.is_forum else None,
+                message_thread_id=update.effective_message.message_thread_id
+                if chat.is_forum else None,
             )
             return
         else:
@@ -46,7 +47,10 @@ async def send_rules(update, chat_id, from_pm=False):
 
     if from_pm and rules:
         await bot.send_message(
-            user.id, text, parse_mode=ParseMode.HTML, disable_web_page_preview=True,
+            user.id,
+            text,
+            parse_mode=ParseMode.HTML,
+            disable_web_page_preview=True,
         )
     elif from_pm:
         await bot.send_message(
@@ -57,34 +61,31 @@ async def send_rules(update, chat_id, from_pm=False):
     elif rules and reply_msg and not reply_msg.forum_topic_created:
         await reply_msg.reply_text(
             "Please click the button below to see the rules.",
-            reply_markup=InlineKeyboardMarkup(
+            reply_markup=InlineKeyboardMarkup([
                 [
-                    [
-                        InlineKeyboardButton(
-                            text="Rules", url=f"t.me/{bot.username}?start={chat_id}",
-                        ),
-                    ],
+                    InlineKeyboardButton(
+                        text="Rules",
+                        url=f"t.me/{bot.username}?start={chat_id}",
+                    ),
                 ],
-            ),
+            ], ),
         )
     elif rules:
         await update.effective_message.reply_text(
             "Please click the button below to see the rules.",
-            reply_markup=InlineKeyboardMarkup(
+            reply_markup=InlineKeyboardMarkup([
                 [
-                    [
-                        InlineKeyboardButton(
-                            text="Rules", url=f"t.me/{bot.username}?start={chat_id}",
-                        ),
-                    ],
+                    InlineKeyboardButton(
+                        text="Rules",
+                        url=f"t.me/{bot.username}?start={chat_id}",
+                    ),
                 ],
-            ),
+            ], ),
         )
     else:
         await update.effective_message.reply_text(
             "The group admins haven't set any rules for this chat yet. "
-            "This probably doesn't mean it's lawless though...!",
-        )
+            "This probably doesn't mean it's lawless though...!", )
 
 
 @check_admin(is_user=True)
@@ -92,16 +93,21 @@ async def set_rules(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
     msg = update.effective_message  # type: Optional[Message]
     raw_text = msg.text
-    args = raw_text.split(None, 1)  # use python's maxsplit to separate cmd and args
+    args = raw_text.split(None,
+                          1)  # use python's maxsplit to separate cmd and args
     if len(args) == 2:
         txt = args[1]
-        offset = len(txt) - len(raw_text)  # set correct offset relative to command
+        offset = len(txt) - len(
+            raw_text)  # set correct offset relative to command
         markdown_rules = markdown_parser(
-            txt, entities=msg.parse_entities(), offset=offset,
+            txt,
+            entities=msg.parse_entities(),
+            offset=offset,
         )
 
         sql.set_rules(chat_id, markdown_rules)
-        await update.effective_message.reply_text("Successfully set rules for this group.")
+        await update.effective_message.reply_text(
+            "Successfully set rules for this group.")
 
 
 @check_admin(is_user=True)
@@ -139,9 +145,18 @@ __help__ = """
 
 __mod_name__ = "Rules"
 
-GET_RULES_HANDLER = CommandHandler("rules", get_rules, filters=filters.ChatType.GROUPS, block=False)
-SET_RULES_HANDLER = CommandHandler("setrules", set_rules, filters=filters.ChatType.GROUPS, block=False)
-RESET_RULES_HANDLER = CommandHandler("clearrules", clear_rules, filters=filters.ChatType.GROUPS, block=False)
+GET_RULES_HANDLER = CommandHandler("rules",
+                                   get_rules,
+                                   filters=filters.ChatType.GROUPS,
+                                   block=False)
+SET_RULES_HANDLER = CommandHandler("setrules",
+                                   set_rules,
+                                   filters=filters.ChatType.GROUPS,
+                                   block=False)
+RESET_RULES_HANDLER = CommandHandler("clearrules",
+                                     clear_rules,
+                                     filters=filters.ChatType.GROUPS,
+                                     block=False)
 
 application.add_handler(GET_RULES_HANDLER)
 application.add_handler(SET_RULES_HANDLER)

@@ -14,7 +14,7 @@ from hinamibot.modules.disable import DisableAbleCommandHandler
 async def reverse(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.effective_message
     args = context.args
-    
+
     if args:
         if len(args) <= 1:
             url = args[0]
@@ -24,25 +24,23 @@ async def reverse(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 result = Search(url=url)
                 name = result["output"]
                 link = result["similar"]
-                
+
                 await msg.edit_text("Uploaded to google, fetching results...")
-                await msg.edit_text(
-                text=f"{name}",
-                reply_markup=InlineKeyboardMarkup(
-                        [
-                            [
-                                InlineKeyboardButton(
-                                    text="Similar",
-                                    url=link,
-                                ),
-                            ],
-                        ],
-                    )
-                )
+                await msg.edit_text(text=f"{name}",
+                                    reply_markup=InlineKeyboardMarkup([
+                                        [
+                                            InlineKeyboardButton(
+                                                text="Similar",
+                                                url=link,
+                                            ),
+                                        ],
+                                    ], ))
                 return
         else:
-            await message.reply_text("Command must be used with a reply to an image or should give url")
-    
+            await message.reply_text(
+                "Command must be used with a reply to an image or should give url"
+            )
+
     elif message.reply_to_message and message.reply_to_message.photo:
         try:
             edit = await message.reply_text("Downloading Image")
@@ -60,22 +58,21 @@ async def reverse(update: Update, context: ContextTypes.DEFAULT_TYPE):
         name = result["output"]
         link = result["similar"]
 
-        await edit.edit_text(
-            text=f"{name}",
-            reply_markup=InlineKeyboardMarkup(
-                [
-                    [
-                        InlineKeyboardButton(
-                            text="Similar",
-                            url=link,
-                        ),
-                    ],
-                ],
-            )
-        )
+        await edit.edit_text(text=f"{name}",
+                             reply_markup=InlineKeyboardMarkup([
+                                 [
+                                     InlineKeyboardButton(
+                                         text="Similar",
+                                         url=link,
+                                     ),
+                                 ],
+                             ], ))
         return
     else:
-        await message.reply_text("Command should be used with replying to an image or url should given.")
+        await message.reply_text(
+            "Command should be used with replying to an image or url should given."
+        )
+
 
 REVERSE_HANDLER = DisableAbleCommandHandler("reverse", reverse, block=False)
 application.add_handler(REVERSE_HANDLER)

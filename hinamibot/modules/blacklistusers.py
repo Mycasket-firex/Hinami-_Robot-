@@ -23,7 +23,6 @@ BLACKLISTWHITELIST = [OWNER_ID] + DEV_USERS + DRAGONS
 BLABLEUSERS = [OWNER_ID] + DEV_USERS
 
 
-
 @gloggable
 @check_admin(only_dev=True)
 async def bl_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
@@ -37,7 +36,8 @@ async def bl_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         return ""
 
     if user_id == bot.id:
-        await message.reply_text("How am I supposed to do my work if I am ignoring myself?")
+        await message.reply_text(
+            "How am I supposed to do my work if I am ignoring myself?")
         return ""
 
     if user_id in BLACKLISTWHITELIST:
@@ -64,7 +64,6 @@ async def bl_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         log_message += f"\n<b>Reason:</b> {reason}"
 
     return log_message
-
 
 
 @check_admin(only_dev=True)
@@ -109,7 +108,6 @@ async def unbl_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         return ""
 
 
-
 @check_admin(only_dev=True)
 async def bl_users(update: Update, context: ContextTypes.DEFAULT_TYPE):
     users = []
@@ -123,7 +121,8 @@ async def bl_users(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"• {mention_html(user.id, html.escape(user.first_name))} :- {reason}",
             )
         else:
-            users.append(f"• {mention_html(user.id, html.escape(user.first_name))}")
+            users.append(
+                f"• {mention_html(user.id, html.escape(user.first_name))}")
 
     message = "<b>Blacklisted Users</b>\n"
     if not users:
@@ -131,7 +130,8 @@ async def bl_users(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         message += "\n".join(users)
 
-    await update.effective_message.reply_text(message, parse_mode=ParseMode.HTML)
+    await update.effective_message.reply_text(message,
+                                              parse_mode=ParseMode.HTML)
 
 
 def __user_info__(user_id):

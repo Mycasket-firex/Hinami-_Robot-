@@ -11,7 +11,6 @@ from hinamibot.modules.helper_funcs.chat_status import check_admin
 DEBUG_MODE = False
 
 
-
 @check_admin(only_dev=True)
 async def debug(update: Update, context: ContextTypes.DEFAULT_TYPE):
     global DEBUG_MODE
@@ -39,7 +38,8 @@ async def i_do_nothing_yes(event):
             with open("updates.txt", "r") as f:
                 text = f.read()
             with open("updates.txt", "w+") as f:
-                f.write(text + f"\n-{event.from_id} ({event.chat_id}) : {event.text}")
+                f.write(text +
+                        f"\n-{event.from_id} ({event.chat_id}) : {event.text}")
         else:
             with open("updates.txt", "w+") as f:
                 f.write(
@@ -50,12 +50,14 @@ async def i_do_nothing_yes(event):
 support_chat = os.getenv("SUPPORT_CHAT")
 
 
-
 @check_admin(only_dev=True)
 async def logs(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     with open("log.txt", "rb") as f:
-        await context.bot.send_document(document=f, filename=f.name, chat_id=user.id)
+        await context.bot.send_document(document=f,
+                                        filename=f.name,
+                                        chat_id=user.id)
+
 
 @check_admin(only_dev=True)
 async def debug_log(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -63,9 +65,13 @@ async def debug_log(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.effective_message
     try:
         with open("updates.txt", "rb") as f:
-            await context.bot.send_document(document=f, filename=f.name, chat_id=user.id)
+            await context.bot.send_document(document=f,
+                                            filename=f.name,
+                                            chat_id=user.id)
     except FileNotFoundError:
-        LOGGER.warning("updates.txt not found, means you have deleted or turned on debug mode yet")
+        LOGGER.warning(
+            "updates.txt not found, means you have deleted or turned on debug mode yet"
+        )
         await message.reply_text("Sorry sir, but 404")
 
 

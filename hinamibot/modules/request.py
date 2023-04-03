@@ -13,6 +13,7 @@ from hinamibot.modules.sql import request_sql as sql
 
 REQUEST_GROUP = 12
 
+
 @check_admin(is_user=True)
 async def settings(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.effective_message
@@ -33,7 +34,9 @@ async def settings(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     "Succesfully set request handling to False\n You will not receive requests from chats you are admin."
                 )
         else:
-            await message.reply_text(f"Current request handling preference: <code>{sql.user_should_request(user.id)}</code>", parse_mode="html")
+            await message.reply_text(
+                f"Current request handling preference: <code>{sql.user_should_request(user.id)}</code>",
+                parse_mode="html")
 
     else:
         if len(args) >= 1:
@@ -45,10 +48,12 @@ async def settings(update: Update, context: ContextTypes.DEFAULT_TYPE):
             elif args[0] in ['no', 'off']:
                 sql.set_chat_setting(chat.id, False)
                 await message.reply_text(
-                    f"Request handling is now turned off in {chat.title}"
-                )
+                    f"Request handling is now turned off in {chat.title}")
         else:
-            await message.reply_text(f"Current request handling preference: <code>{sql.chat_should_request(chat.id)}</code>", parse_mode="html")
+            await message.reply_text(
+                f"Current request handling preference: <code>{sql.chat_should_request(chat.id)}</code>",
+                parse_mode="html")
+
 
 @loggable
 @user_not_admin
@@ -72,8 +77,7 @@ async def request(update: Update, context: ContextTypes.DEFAULT_TYPE):
             msg = (
                 f"<b>⚠️ Request: </b>{html.escape(chat.title)}\n"
                 f"<b> • Request by:</b> {mention_html(user.id, user.first_name)} | <code>{user.id}</code>\n"
-                f"<b> • Content:</b> <code>{request}</code>\n"
-             )
+                f"<b> • Content:</b> <code>{request}</code>\n")
             link = f'<b> • Requested message:</b> <a href="https://t.me/{chat.username}/{message.message_id}">click here</a>'
             should_forward = False
         else:
@@ -88,26 +92,29 @@ async def request(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if sql.user_should_request(admin.user.id):
                 try:
                     if not chat.type == chat.SUPERGROUP:
-                        await bot.send_message(
-                            admin.user.id, msg+link, parse_mode=ParseMode.HTML, disable_web_page_preview=True
-                        )
+                        await bot.send_message(admin.user.id,
+                                               msg + link,
+                                               parse_mode=ParseMode.HTML,
+                                               disable_web_page_preview=True)
 
                         if should_forward:
                             await message.forward(admin.user.id)
 
                     if not chat.username:
-                        await bot.send_message(
-                            admin.user.id, msg+link, parse_mode=ParseMode.HTML, disable_web_page_preview=True
-                        )
+                        await bot.send_message(admin.user.id,
+                                               msg + link,
+                                               parse_mode=ParseMode.HTML,
+                                               disable_web_page_preview=True)
 
                         if should_forward:
                             await message.forward(admin.user.id)
-                    
+
                     if chat.username and chat.type == chat.SUPERGROUP:
 
-                        await bot.send_message(
-                            admin.user.id, msg + link, parse_mode=ParseMode.HTML, disable_web_page_preview=True
-                        )
+                        await bot.send_message(admin.user.id,
+                                               msg + link,
+                                               parse_mode=ParseMode.HTML,
+                                               disable_web_page_preview=True)
 
                         if should_forward:
                             await message.forward(admin.user.id)
@@ -116,7 +123,7 @@ async def request(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     pass
                 except BadRequest as excp:
                     LOGGER.exception("Exception while requesting content!")
-                
+
         await message.reply_text(
             f"{mention_html(user.id, user.first_name)} I've submitted your request to the admins.",
             parse_mode=ParseMode.HTML,
@@ -124,6 +131,7 @@ async def request(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return msg
 
     return ""
+
 
 def __migrate__(old_chat_id, new_chat_id):
     sql.migrate_chat(old_chat_id, new_chat_id)
@@ -142,10 +150,13 @@ def __user_settings__(user_id):
 
 
 SETTINGS_HANDLER = CommandHandler("requests", settings, block=False)
-REQUEST_HANDLER = CommandHandler("request", request, filters=filters.ChatType.GROUPS , block=False)
-HASH_REQUEST_HANDLER = MessageHandler(filters.Regex(r"(?i)#request(s)?"), request, block=False)
-
-
+REQUEST_HANDLER = CommandHandler("request",
+                                 request,
+                                 filters=filters.ChatType.GROUPS,
+                                 block=False)
+HASH_REQUEST_HANDLER = MessageHandler(filters.Regex(r"(?i)#request(s)?"),
+                                      request,
+                                      block=False)
 
 application.add_handler(SETTINGS_HANDLER)
 application.add_handler(REQUEST_HANDLER, REQUEST_GROUP)

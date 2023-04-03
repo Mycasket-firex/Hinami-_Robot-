@@ -21,7 +21,8 @@ async def allow_groups(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif args[0].lower() in ["yes", "on"]:
         hinamibot.ALLOW_CHATS = False
     else:
-        await update.effective_message.reply_text("Format: /lockdown Yes/No or Off/On")
+        await update.effective_message.reply_text(
+            "Format: /lockdown Yes/No or Off/On")
         return
     await update.effective_message.reply_text("Done! Lockdown value toggled.")
 
@@ -36,14 +37,13 @@ async def leave(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await bot.leave_chat(int(chat_id))
         except TelegramError:
             await update.effective_message.reply_text(
-                "Beep boop, I could not leave that group(dunno why tho).",
-            )
+                "Beep boop, I could not leave that group(dunno why tho).", )
             return
         with suppress(Forbidden):
-            await update.effective_message.reply_text("Beep boop, I left that soup!.")
+            await update.effective_message.reply_text(
+                "Beep boop, I left that soup!.")
     else:
         await update.effective_message.reply_text("Send a valid chat ID")
-
 
 
 LEAVE_HANDLER = CommandHandler("leave", leave, block=False)
@@ -52,7 +52,6 @@ ALLOWGROUPS_HANDLER = CommandHandler("lockdown", allow_groups, block=False)
 
 application.add_handler(ALLOWGROUPS_HANDLER)
 application.add_handler(LEAVE_HANDLER)
-
 
 __mod_name__ = "Dev"
 __handlers__ = [LEAVE_HANDLER, ALLOWGROUPS_HANDLER]

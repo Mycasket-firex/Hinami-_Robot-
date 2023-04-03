@@ -313,15 +313,9 @@ def is_restr_locked(chat_id, lock_type):
     elif lock_type == "topics":
         return curr_restr.topics
     elif lock_type == "all":
-        return (
-            curr_restr.messages
-            and curr_restr.media
-            and curr_restr.other
-            and curr_restr.preview
-            and curr_restr.info
-            and curr_restr.invite
-            and curr_restr.topics
-        )
+        return (curr_restr.messages and curr_restr.media and curr_restr.other
+                and curr_restr.preview and curr_restr.info
+                and curr_restr.invite and curr_restr.topics)
 
 
 def get_locks(chat_id):

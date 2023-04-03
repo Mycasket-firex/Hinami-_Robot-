@@ -38,13 +38,11 @@ def t(milliseconds: int) -> str:
     minutes, seconds = divmod(seconds, 60)
     hours, minutes = divmod(minutes, 60)
     days, hours = divmod(hours, 24)
-    tmp = (
-        ((str(days) + " Days, ") if days else "")
-        + ((str(hours) + " Hours, ") if hours else "")
-        + ((str(minutes) + " Minutes, ") if minutes else "")
-        + ((str(seconds) + " Seconds, ") if seconds else "")
-        + ((str(milliseconds) + " ms, ") if milliseconds else "")
-    )
+    tmp = (((str(days) + " Days, ") if days else "") +
+           ((str(hours) + " Hours, ") if hours else "") +
+           ((str(minutes) + " Minutes, ") if minutes else "") +
+           ((str(seconds) + " Seconds, ") if seconds else "") +
+           ((str(milliseconds) + " ms, ") if milliseconds else ""))
     return tmp[:-2]
 
 
@@ -163,6 +161,7 @@ query ($id: Int,$search: String) {
 
 url = "https://graphql.anilist.co"
 
+
 async def extract_arg(message: Message):
     split = message.text.split(" ", 1)
     if len(split) > 1:
@@ -178,14 +177,17 @@ async def airing(update: Update, context: ContextTypes.DEFAULT_TYPE):
     search_str = await extract_arg(message)
     if not search_str:
         await update.effective_message.reply_text(
-            "Tell Anime Name :) ( /airing <anime name>)",
-        )
+            "Tell Anime Name :) ( /airing <anime name>)", )
         return
     variables = {"search": search_str}
     async with AsyncClient() as client:
         r = await client.post(
-        url, json={"query": airing_query, "variables": variables},
-    )
+            url,
+            json={
+                "query": airing_query,
+                "variables": variables
+            },
+        )
     if not r.status_code in [401, 404, 500, 503]:
         response = r.json()["data"]["Media"]
     else:
@@ -198,21 +200,26 @@ async def airing(update: Update, context: ContextTypes.DEFAULT_TYPE):
         msg += f"\n*Episode*: `{response['nextAiringEpisode']['episode']}`\n*Airing In*: `{time}`"
     else:
         msg += f"\n*Episode*:{response['episodes']}\n*Status*: `N/A`"
-    await update.effective_message.reply_text(msg, parse_mode=ParseMode.MARKDOWN)
-
+    await update.effective_message.reply_text(msg,
+                                              parse_mode=ParseMode.MARKDOWN)
 
 
 async def anime(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.effective_message
     search = await extract_arg(message)
     if not search:
-        await update.effective_message.reply_text("Format : /anime < anime name >")
+        await update.effective_message.reply_text(
+            "Format : /anime < anime name >")
         return
     variables = {"search": search}
     async with AsyncClient() as client:
         r = await client.post(
-        url, json={"query": anime_query, "variables": variables},
-    )
+            url,
+            json={
+                "query": anime_query,
+                "variables": variables
+            },
+        )
     json = r.json()
     if "errors" in json.keys():
         await update.effective_message.reply_text("Anime not found")
@@ -223,7 +230,8 @@ async def anime(update: Update, context: ContextTypes.DEFAULT_TYPE):
         for x in json["genres"]:
             msg += f"{x}, "
         msg = msg[:-2] + "`\n"
-        msg += "➢ *Adult*: True 🔞 \n" if json['isAdult'] else "➢ *Adult*: False\n"
+        msg += "➢ *Adult*: True 🔞 \n" if json[
+            'isAdult'] else "➢ *Adult*: False\n"
         msg += "➢ *Studios*: `"
         for x in json["studios"]["nodes"]:
             msg += f"{x['name']}, "
@@ -236,12 +244,8 @@ async def anime(update: Update, context: ContextTypes.DEFAULT_TYPE):
             site = trailer.get("site", None)
             if site == "youtube":
                 trailer = "https://youtu.be/" + trailer_id
-        description = (
-            json.get("description", "N/A")
-            .replace("<i>", "")
-            .replace("</i>", "")
-            .replace("<br>", "")
-        )
+        description = (json.get("description", "N/A").replace(
+            "<i>", "").replace("</i>", "").replace("<br>", ""))
         msg += shorten(description, info)
         image = f"https://img.anili.st/media/{anime_id}"
         if trailer:
@@ -276,18 +280,22 @@ async def anime(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
 
 
-
 async def character(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.effective_message
     search = await extract_arg(message)
     if not search:
-        await update.effective_message.reply_text("Format : /character < character name >")
+        await update.effective_message.reply_text(
+            "Format : /character < character name >")
         return
     variables = {"query": search}
     async with AsyncClient() as client:
         r = await client.post(
-        url, json={"query": character_query, "variables": variables},
-    )
+            url,
+            json={
+                "query": character_query,
+                "variables": variables
+            },
+        )
     json = r.json()
     if "errors" in json.keys():
         await update.effective_message.reply_text("Character not found")
@@ -309,22 +317,27 @@ async def character(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
         else:
             await update.effective_message.reply_text(
-                markdown_to_html(markdown_parser(msg)), parse_mode=ParseMode.HTML,
+                markdown_to_html(markdown_parser(msg)),
+                parse_mode=ParseMode.HTML,
             )
-
 
 
 async def manga(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.effective_message
     search = await extract_arg(message)
     if not search:
-        await update.effective_message.reply_text("Format : /manga < manga name >")
+        await update.effective_message.reply_text(
+            "Format : /manga < manga name >")
         return
     variables = {"search": search}
     async with AsyncClient() as client:
         r = await client.post(
-        url, json={"query": manga_query, "variables": variables},
-    )
+            url,
+            json={
+                "query": manga_query,
+                "variables": variables
+            },
+        )
     json = r.json()
     msg = ""
     if "errors" in json.keys():
@@ -332,9 +345,11 @@ async def manga(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     if json:
         json = json["data"]["Media"]
-        title, title_native = json["title"].get("romaji", False), json["title"].get(
-            "native", False,
-        )
+        title, title_native = json["title"].get("romaji",
+                                                False), json["title"].get(
+                                                    "native",
+                                                    False,
+                                                )
         start_date, status, score = (
             json["startDate"].get("year", False),
             json.get("status", False),
@@ -381,7 +396,6 @@ async def manga(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
 
 
-
 async def user(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.effective_message
     search_query = await extract_arg(message)
@@ -398,7 +412,8 @@ async def user(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.effective_message.reply_text("Username not found.")
         return
 
-    progress_message = await update.effective_message.reply_text("Searching.... ")
+    progress_message = await update.effective_message.reply_text(
+        "Searching.... ")
 
     date_format = "%Y-%m-%d"
     if us["image_url"] is None:
@@ -427,7 +442,8 @@ async def user(update: Update, context: ContextTypes.DEFAULT_TYPE):
         pass
 
     about_string = " ".join(about)
-    about_string = about_string.replace("<br>", "").strip().replace("\r\n", "\n")
+    about_string = about_string.replace("<br>",
+                                        "").strip().replace("\r\n", "\n")
 
     caption = ""
 
@@ -441,8 +457,7 @@ async def user(update: Update, context: ContextTypes.DEFAULT_TYPE):
     *Days wasted watching anime*: `{us['anime_stats']['days_watched']}`
     *Days wasted reading manga*: `{us['manga_stats']['days_read']}`
 
-    """,
-    )
+    """, )
 
     caption += f"*About*: {about_string}"
 
@@ -450,7 +465,8 @@ async def user(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton(info_btn, url=us["url"])],
         [
             InlineKeyboardButton(
-                close_btn, callback_data=f"anime_close, {message.from_user.id}",
+                close_btn,
+                callback_data=f"anime_close, {message.from_user.id}",
             ),
         ],
     ]
@@ -463,7 +479,6 @@ async def user(update: Update, context: ContextTypes.DEFAULT_TYPE):
         disable_web_page_preview=False,
     )
     await progress_message.delete()
-
 
 
 async def upcoming(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -481,7 +496,8 @@ async def upcoming(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.effective_message.reply_text(upcoming_message)
 
 
-async def site_search(update: Update, context: ContextTypes.DEFAULT_TYPE, site: str):
+async def site_search(update: Update, context: ContextTypes.DEFAULT_TYPE,
+                      site: str):
     message = update.effective_message
     search_query = await extract_arg(message)
     more_results = True
@@ -539,14 +555,14 @@ async def site_search(update: Update, context: ContextTypes.DEFAULT_TYPE, site: 
         )
     else:
         await message.reply_text(
-            result, parse_mode=ParseMode.HTML, disable_web_page_preview=True,
+            result,
+            parse_mode=ParseMode.HTML,
+            disable_web_page_preview=True,
         )
-
 
 
 async def kaizoku(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await site_search(update, context, "kaizoku")
-
 
 
 async def kayo(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -571,11 +587,15 @@ Get information about anime, manga or characters from [AniList](anilist.co).
 
 ANIME_HANDLER = DisableAbleCommandHandler("anime", anime, block=False)
 AIRING_HANDLER = DisableAbleCommandHandler("airing", airing, block=False)
-CHARACTER_HANDLER = DisableAbleCommandHandler("character", character, block=False)
+CHARACTER_HANDLER = DisableAbleCommandHandler("character",
+                                              character,
+                                              block=False)
 MANGA_HANDLER = DisableAbleCommandHandler("manga", manga, block=False)
 USER_HANDLER = DisableAbleCommandHandler("user", user, block=False)
 UPCOMING_HANDLER = DisableAbleCommandHandler("upcoming", upcoming, block=False)
-KAIZOKU_SEARCH_HANDLER = DisableAbleCommandHandler("kaizoku", kaizoku, block=False)
+KAIZOKU_SEARCH_HANDLER = DisableAbleCommandHandler("kaizoku",
+                                                   kaizoku,
+                                                   block=False)
 KAYO_SEARCH_HANDLER = DisableAbleCommandHandler("kayo", kayo, block=False)
 
 application.add_handler(ANIME_HANDLER)

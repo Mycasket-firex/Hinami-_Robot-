@@ -28,16 +28,17 @@ async def telegraph(update: Update, context: ContextTypes.DEFAULT_TYPE):
     args = context.args
     bot = context.bot
 
-
     if not args:
-        await message.reply_text("Sorry invalid option \n Ex: /telegraph m - for media \n /telegraph t - for text")
-        return 
+        await message.reply_text(
+            "Sorry invalid option \n Ex: /telegraph m - for media \n /telegraph t - for text"
+        )
+        return
 
-    msg = await message.reply_text("<code>Started telegraph module...</code>", parse_mode="html")        
+    msg = await message.reply_text("<code>Started telegraph module...</code>",
+                                   parse_mode="html")
 
     if not os.path.isdir(TEMP_DOWNLOAD_LOC):
         os.mkdir(TEMP_DOWNLOAD_LOC)
-
 
     if len(args) >= 1:
         if message.reply_to_message and not message.reply_to_message.forum_topic_created:
@@ -52,8 +53,10 @@ async def telegraph(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     file = reply_msg.video.get_file()
                     file_name = reply_msg.video.file_name
 
-                downloaded_file = file.download_to_drive(TEMP_DOWNLOAD_LOC + "/" + file_name)
-                await msg.edit_text("<code>Downloaded image/video</code>", parse_mode="html")
+                downloaded_file = file.download_to_drive(TEMP_DOWNLOAD_LOC +
+                                                         "/" + file_name)
+                await msg.edit_text("<code>Downloaded image/video</code>",
+                                    parse_mode="html")
 
                 try:
                     media_url = telegrph.upload.upload_file(downloaded_file)
@@ -73,18 +76,15 @@ async def telegraph(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 text = reply_msg.text
                 text = text.replace("\n", "<br>")
 
-                response = telegrph.create_page(
-                    page_title, html_content=text
-                )
+                response = telegrph.create_page(page_title, html_content=text)
 
                 await msg.edit_text(
                     f"Successfully uploaded the Text to [telegra.ph](https://telegra.ph/{response['path']})",
-                    parse_mode="markdown"
-                )
-                
+                    parse_mode="markdown")
 
         elif not message.reply_to_message:
-            await msg.edit_text("Haha! I know this trick so tag any image/video/text")
+            await msg.edit_text(
+                "Haha! I know this trick so tag any image/video/text")
 
 
 TELEGRAPH_HANDLER = CommandHandler("telegraph", telegraph, block=False)

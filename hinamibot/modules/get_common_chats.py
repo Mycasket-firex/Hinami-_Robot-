@@ -8,7 +8,9 @@ from telegram import Update, Chat
 from telegram.error import BadRequest, RetryAfter, Forbidden
 from telegram.ext import ContextTypes, CommandHandler, filters
 
-async def get_user_common_chats(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+async def get_user_common_chats(update: Update,
+                                context: ContextTypes.DEFAULT_TYPE):
     bot, args = context.bot, context.args
     msg = update.effective_message
     user = await extract_user(msg, context, args)
@@ -46,8 +48,9 @@ async def get_user_common_chats(update: Update, context: ContextTypes.DEFAULT_TY
         os.remove("common_chats.txt")
 
 
-COMMON_CHATS_HANDLER = CommandHandler(
-    "getchats", get_user_common_chats, filters=filters.User(OWNER_ID), block=False
-)
+COMMON_CHATS_HANDLER = CommandHandler("getchats",
+                                      get_user_common_chats,
+                                      filters=filters.User(OWNER_ID),
+                                      block=False)
 
 application.add_handler(COMMON_CHATS_HANDLER)

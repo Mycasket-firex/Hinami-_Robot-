@@ -18,6 +18,7 @@ from telegram.helpers import mention_html
 
 REPORT_GROUP = 12
 
+
 @check_admin(is_user=True)
 async def report_setting(update: Update, context: ContextTypes.DEFAULT_TYPE):
     bot, args = context.bot, context.args
@@ -34,7 +35,8 @@ async def report_setting(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             elif args[0] in ("no", "off"):
                 sql.set_user_setting(chat.id, False)
-                await msg.reply_text("Turned off reporting! You wont get any reports.")
+                await msg.reply_text(
+                    "Turned off reporting! You wont get any reports.")
         else:
             await msg.reply_text(
                 f"Your current report preference is: `{sql.user_should_report(chat.id)}`",
@@ -47,8 +49,7 @@ async def report_setting(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 sql.set_chat_setting(chat.id, True)
                 await msg.reply_text(
                     "Turned on reporting! Admins who have turned on reports will be notified when /report "
-                    "or @admin is called.",
-                )
+                    "or @admin is called.", )
 
             elif args[0] in ("no", "off"):
                 sql.set_chat_setting(chat.id, False)
@@ -61,6 +62,7 @@ async def report_setting(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 parse_mode=ParseMode.MARKDOWN,
             )
 
+
 @user_not_admin
 @loggable
 async def report(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
@@ -70,12 +72,9 @@ async def report(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     chat = update.effective_chat
     user = update.effective_user
 
-    if (
-        chat 
-        and message.reply_to_message 
-        and not message.reply_to_message.forum_topic_created 
-        and sql.chat_should_report(chat.id)
-        ):
+    if (chat and message.reply_to_message
+            and not message.reply_to_message.forum_topic_created
+            and sql.chat_should_report(chat.id)):
         reported_user = message.reply_to_message.from_user
         chat_name = chat.title or chat.first or chat.username
         admin_list = await chat.get_administrators()
@@ -112,23 +111,27 @@ async def report(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
                 [
                     InlineKeyboardButton(
                         "➡ Message",
-                        url=f"https://t.me/{chat.username}/{message.reply_to_message.message_id}",
+                        url=
+                        f"https://t.me/{chat.username}/{message.reply_to_message.message_id}",
                     ),
                 ],
                 [
                     InlineKeyboardButton(
                         "⚠ Kick",
-                        callback_data=f"report_{chat.id}=kick={reported_user.id}={reported_user.first_name}",
+                        callback_data=
+                        f"report_{chat.id}=kick={reported_user.id}={reported_user.first_name}",
                     ),
                     InlineKeyboardButton(
                         "⛔️ Ban",
-                        callback_data=f"report_{chat.id}=banned={reported_user.id}={reported_user.first_name}",
+                        callback_data=
+                        f"report_{chat.id}=banned={reported_user.id}={reported_user.first_name}",
                     ),
                 ],
                 [
                     InlineKeyboardButton(
                         "❎ Delete Message",
-                        callback_data=f"report_{chat.id}=delete={reported_user.id}={message.reply_to_message.message_id}",
+                        callback_data=
+                        f"report_{chat.id}=delete={reported_user.id}={message.reply_to_message.message_id}",
                     ),
                 ],
             ]
@@ -151,26 +154,32 @@ async def report(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
                 try:
                     if not chat.type == Chat.SUPERGROUP:
                         await bot.send_message(
-                            admin.user.id, msg + link, parse_mode=ParseMode.HTML,
+                            admin.user.id,
+                            msg + link,
+                            parse_mode=ParseMode.HTML,
                         )
 
                         if should_forward:
-                            await message.reply_to_message.forward(admin.user.id)
+                            await message.reply_to_message.forward(
+                                admin.user.id)
 
                             if (
-                                len(message.text.split()) > 1
+                                    len(message.text.split()) > 1
                             ):  # If user is giving a reason, send his message too
                                 await message.forward(admin.user.id)
                     if not chat.username:
                         await bot.send_message(
-                            admin.user.id, msg + link, parse_mode=ParseMode.HTML,
+                            admin.user.id,
+                            msg + link,
+                            parse_mode=ParseMode.HTML,
                         )
 
                         if should_forward:
-                            await message.reply_to_message.forward(admin.user.id)
+                            await message.reply_to_message.forward(
+                                admin.user.id)
 
                             if (
-                                len(message.text.split()) > 1
+                                    len(message.text.split()) > 1
                             ):  # If user is giving a reason, send his message too
                                 await message.forward(admin.user.id)
 
@@ -183,10 +192,11 @@ async def report(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
                         )
 
                         if should_forward:
-                            await message.reply_to_message.forward(admin.user.id)
+                            await message.reply_to_message.forward(
+                                admin.user.id)
 
                             if (
-                                len(message.text.split()) > 1
+                                    len(message.text.split()) > 1
                             ):  # If user is giving a reason, send his message too
                                 await message.forward(admin.user.id)
 
@@ -275,8 +285,13 @@ __help__ = """
 """
 
 SETTING_HANDLER = CommandHandler("reports", report_setting, block=False)
-REPORT_HANDLER = CommandHandler("report", report, filters=filters.ChatType.GROUPS, block=False)
-ADMIN_REPORT_HANDLER = MessageHandler(filters.Regex(r"(?i)@admin(s)?"), report, block=False)
+REPORT_HANDLER = CommandHandler("report",
+                                report,
+                                filters=filters.ChatType.GROUPS,
+                                block=False)
+ADMIN_REPORT_HANDLER = MessageHandler(filters.Regex(r"(?i)@admin(s)?"),
+                                      report,
+                                      block=False)
 
 REPORT_BUTTON_USER_HANDLER = CallbackQueryHandler(buttons, pattern=r"report_")
 application.add_handler(REPORT_BUTTON_USER_HANDLER)

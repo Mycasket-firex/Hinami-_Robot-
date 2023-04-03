@@ -19,13 +19,13 @@ from telegram.constants import ParseMode
 from telegram.ext import ContextTypes, CommandHandler
 
 
-
 @check_admin(only_dev=True)
 async def load(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.effective_message
     text = message.text.split(" ", 1)[1]
     load_messasge = await message.reply_text(
-        f"Attempting to load module : <b>{text}</b>", parse_mode=ParseMode.HTML,
+        f"Attempting to load module : <b>{text}</b>",
+        parse_mode=ParseMode.HTML,
     )
 
     try:
@@ -85,9 +85,9 @@ async def load(update: Update, context: ContextTypes.DEFAULT_TYPE):
         USER_SETTINGS[imported_module.__mod_name__.lower()] = imported_module
 
     await load_messasge.edit_text(
-        "Successfully loaded module : <b>{}</b>".format(text), parse_mode=ParseMode.HTML,
+        "Successfully loaded module : <b>{}</b>".format(text),
+        parse_mode=ParseMode.HTML,
     )
-
 
 
 @check_admin(only_dev=True)
@@ -95,7 +95,8 @@ async def unload(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.effective_message
     text = message.text.split(" ", 1)[1]
     unload_messasge = await message.reply_text(
-        f"Attempting to unload module : <b>{text}</b>", parse_mode=ParseMode.HTML,
+        f"Attempting to unload module : <b>{text}</b>",
+        parse_mode=ParseMode.HTML,
     )
 
     try:
@@ -109,13 +110,15 @@ async def unload(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if imported_module.__mod_name__.lower() in IMPORTED:
         IMPORTED.pop(imported_module.__mod_name__.lower())
     else:
-        await unload_messasge.edit_text("Can't unload something that isn't loaded.")
+        await unload_messasge.edit_text(
+            "Can't unload something that isn't loaded.")
         return
     if "__handlers__" in dir(imported_module):
         handlers = imported_module.__handlers__
         for handler in handlers:
             if isinstance(handler, bool):
-                await unload_messasge.edit_text("This module can't be unloaded!")
+                await unload_messasge.edit_text(
+                    "This module can't be unloaded!")
                 return
             elif not isinstance(handler, tuple):
                 application.remove_handler(handler)
@@ -156,7 +159,8 @@ async def unload(update: Update, context: ContextTypes.DEFAULT_TYPE):
         USER_SETTINGS.pop(imported_module.__mod_name__.lower())
 
     await unload_messasge.edit_text(
-        f"Successfully unloaded module : <b>{text}</b>", parse_mode=ParseMode.HTML,
+        f"Successfully unloaded module : <b>{text}</b>",
+        parse_mode=ParseMode.HTML,
     )
 
 

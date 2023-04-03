@@ -10,10 +10,8 @@ from hinamibot import (
     SUPPORT_CHAT,
     application,
 )
-from hinamibot.modules.helper_funcs.chat_status import (
-    whitelist_plus,
-    check_admin
-)
+from hinamibot.modules.helper_funcs.chat_status import (whitelist_plus,
+                                                        check_admin)
 from hinamibot.modules.helper_funcs.extraction import extract_user
 from hinamibot.modules.log_channel import gloggable
 from telegram import Update
@@ -22,10 +20,12 @@ from telegram.constants import ParseMode
 from telegram.ext import ContextTypes, CommandHandler
 from telegram.helpers import mention_html
 
-ELEVATED_USERS_FILE = os.path.join(os.getcwd(), "hinamibot/elevated_users.json")
+ELEVATED_USERS_FILE = os.path.join(os.getcwd(),
+                                   "hinamibot/elevated_users.json")
 
 
-def check_user_id(user_id: int, context: ContextTypes.DEFAULT_TYPE) -> Optional[str]:
+def check_user_id(user_id: int,
+                  context: ContextTypes.DEFAULT_TYPE) -> Optional[str]:
     bot = context.bot
     if not user_id:
         reply = "That...is a chat! baka ka omae?"
@@ -36,6 +36,7 @@ def check_user_id(user_id: int, context: ContextTypes.DEFAULT_TYPE) -> Optional[
     else:
         reply = None
     return reply
+
 
 @gloggable
 @check_admin(only_dev=True)
@@ -67,11 +68,8 @@ async def addsudo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         json.dump(data, outfile, indent=4)
 
     await update.effective_message.reply_text(
-        rt
-        + "\nSuccessfully set Disaster level of {} to Dragon!".format(
-            user_member.first_name,
-        ),
-    )
+        rt + "\nSuccessfully set Disaster level of {} to Dragon!".format(
+            user_member.first_name, ), )
 
     log_message = (
         f"#SUDO\n"
@@ -84,9 +82,11 @@ async def addsudo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
 
     return log_message
 
+
 @gloggable
 @check_admin(only_dev=True)
-async def removesudo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
+async def removesudo(update: Update,
+                     context: ContextTypes.DEFAULT_TYPE) -> str:
     message = update.effective_message
     user = update.effective_user
     chat = update.effective_chat
@@ -103,7 +103,8 @@ async def removesudo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         data = json.load(infile)
 
     if user_id in DRAGONS:
-        await message.reply_text("Requested HA to demote this user to Civilian")
+        await message.reply_text("Requested HA to demote this user to Civilian"
+                                 )
         DRAGONS.remove(user_id)
         data["sudos"].remove(user_id)
 
@@ -117,7 +118,8 @@ async def removesudo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         )
 
         if chat.type != "private":
-            log_message = "<b>{}:</b>\n".format(html.escape(chat.title)) + log_message
+            log_message = "<b>{}:</b>\n".format(html.escape(
+                chat.title)) + log_message
 
         return log_message
 
@@ -125,11 +127,13 @@ async def removesudo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         await message.reply_text("This user is not a Dragon Disaster!")
         return ""
 
+
 @whitelist_plus
 async def sudolist(update: Update, context: ContextTypes.DEFAULT_TYPE):
     bot = context.bot
     m = await update.effective_message.reply_text(
-        "<code>Gathering intel..</code>", parse_mode=ParseMode.HTML,
+        "<code>Gathering intel..</code>",
+        parse_mode=ParseMode.HTML,
     )
     true_sudo = list(set(DRAGONS) - set(DEV_USERS))
     reply = "<b>Known Dragon Disasters 🐉:</b>\n"
@@ -143,12 +147,12 @@ async def sudolist(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await m.edit_text(reply, parse_mode=ParseMode.HTML)
 
 
-
 @whitelist_plus
 async def devlist(update: Update, context: ContextTypes.DEFAULT_TYPE):
     bot = context.bot
     m = await update.effective_message.reply_text(
-        "<code>Gathering intel..</code>", parse_mode=ParseMode.HTML,
+        "<code>Gathering intel..</code>",
+        parse_mode=ParseMode.HTML,
     )
     true_dev = list(set(DEV_USERS) - {OWNER_ID})
     reply = "<b>Black Bulls Members ⚡️:</b>\n"
@@ -246,7 +250,9 @@ Visit @blackbulls\_support for more information.
 """
 
 SUDO_HANDLER = CommandHandler(("addsudo", "adddragon"), addsudo, block=False)
-SUDOLIST_HANDLER = CommandHandler(["sudolist", "dragons"], sudolist, block=False)
+SUDOLIST_HANDLER = CommandHandler(["sudolist", "dragons"],
+                                  sudolist,
+                                  block=False)
 DEVLIST_HANDLER = CommandHandler(["devlist", "darlings"], devlist, block=False)
 
 application.add_handler(SUDO_HANDLER)

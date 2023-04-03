@@ -56,7 +56,6 @@ async def get_user_id(username: str) -> Union[int, None]:
     return None
 
 
-
 @check_admin(only_dev=True)
 async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
     to_send = update.effective_message.text.split(None, 1)
@@ -104,12 +103,12 @@ async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
 
-
 async def log_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat = update.effective_chat
     msg = update.effective_message
 
-    sql.update_user(msg.from_user.id, msg.from_user.username, chat.id, chat.title)
+    sql.update_user(msg.from_user.id, msg.from_user.username, chat.id,
+                    chat.title)
 
     if msg.reply_to_message:
         sql.update_user(
@@ -123,7 +122,6 @@ async def log_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
         sql.update_user(msg.forward_from.id, msg.forward_from.username)
 
 
-
 @check_admin(only_sudo=True)
 async def chats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     all_chats = sql.get_all_chats() or []
@@ -135,7 +133,10 @@ async def chats(update: Update, context: ContextTypes.DEFAULT_TYPE):
             bot_member = await curr_chat.get_member(context.bot.id)
             chat_members = await curr_chat.get_member_count(context.bot.id)
             chatfile += "{}. {} | {} | {}\n".format(
-                P, chat.chat_name, chat.chat_id, chat_members,
+                P,
+                chat.chat_name,
+                chat.chat_id,
+                chat_members,
             )
             P = P + 1
         except:
@@ -148,7 +149,6 @@ async def chats(update: Update, context: ContextTypes.DEFAULT_TYPE):
             filename="groups_list.txt",
             caption="Here be the list of groups in my database.",
         )
-
 
 
 async def chat_checker(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -182,10 +182,17 @@ def __migrate__(old_chat_id, new_chat_id):
 __help__ = ""  # no help string
 
 BROADCAST_HANDLER = CommandHandler(
-    ["broadcastall", "broadcastusers", "broadcastgroups"], broadcast, block=False
-)
-USER_HANDLER = MessageHandler(filters.ALL & filters.ChatType.GROUPS, log_user, allow_edit=True, block=False)
-CHAT_CHECKER_HANDLER = MessageHandler(filters.ALL & filters.ChatType.GROUPS, chat_checker, allow_edit=True, block=False)
+    ["broadcastall", "broadcastusers", "broadcastgroups"],
+    broadcast,
+    block=False)
+USER_HANDLER = MessageHandler(filters.ALL & filters.ChatType.GROUPS,
+                              log_user,
+                              allow_edit=True,
+                              block=False)
+CHAT_CHECKER_HANDLER = MessageHandler(filters.ALL & filters.ChatType.GROUPS,
+                                      chat_checker,
+                                      allow_edit=True,
+                                      block=False)
 CHATLIST_HANDLER = CommandHandler("groups", chats, block=False)
 
 application.add_handler(USER_HANDLER, USERS_GROUP)
@@ -194,4 +201,5 @@ application.add_handler(CHATLIST_HANDLER)
 application.add_handler(CHAT_CHECKER_HANDLER, CHAT_GROUP)
 
 __mod_name__ = "Users"
-__handlers__ = [(USER_HANDLER, USERS_GROUP), BROADCAST_HANDLER, CHATLIST_HANDLER]
+__handlers__ = [(USER_HANDLER, USERS_GROUP), BROADCAST_HANDLER,
+                CHATLIST_HANDLER]

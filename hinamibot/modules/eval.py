@@ -32,7 +32,8 @@ def namespace_of(chat, update, bot):
 def log_input(update):
     user = update.effective_user.id
     chat = update.effective_chat.id
-    LOGGER.info(f"IN: {update.effective_message.text} (user={user}, chat={chat})")
+    LOGGER.info(
+        f"IN: {update.effective_message.text} (user={user}, chat={chat})")
 
 
 async def send(msg, bot, update):
@@ -40,18 +41,18 @@ async def send(msg, bot, update):
         with io.BytesIO(str.encode(msg)) as out_file:
             out_file.name = "output.txt"
             await bot.send_document(
-                chat_id=update.effective_chat.id, 
-                document=out_file, 
-                message_thread_id=update.effective_message.message_thread_id if update.effective_chat.is_forum else None
-            )
+                chat_id=update.effective_chat.id,
+                document=out_file,
+                message_thread_id=update.effective_message.message_thread_id
+                if update.effective_chat.is_forum else None)
     else:
         LOGGER.info(f"OUT: '{msg}'")
         await bot.send_message(
             chat_id=update.effective_chat.id,
             text=f"`{msg}`",
             parse_mode=ParseMode.MARKDOWN,
-            message_thread_id=update.effective_message.message_thread_id if update.effective_chat.is_forum else None
-        )
+            message_thread_id=update.effective_message.message_thread_id
+            if update.effective_chat.is_forum else None)
 
 
 @check_admin(only_dev=True)
@@ -90,7 +91,9 @@ async def do(func, bot, update):
 
     os.chdir(os.getcwd())
     with open(
-        os.path.join(os.getcwd(), "hinamibot/modules/helper_funcs/temp.txt"), "w",
+            os.path.join(os.getcwd(),
+                         "hinamibot/modules/helper_funcs/temp.txt"),
+            "w",
     ) as temp:
         temp.write(body)
 
@@ -141,8 +144,12 @@ async def clear(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await send("Cleared locals.", bot, update)
 
 
-EVAL_HANDLER = CommandHandler(("e", "ev", "eva", "eval"), evaluate, block=False)
-EXEC_HANDLER = CommandHandler(("x", "ex", "exe", "exec", "py"), execute, block=False)
+EVAL_HANDLER = CommandHandler(("e", "ev", "eva", "eval"),
+                              evaluate,
+                              block=False)
+EXEC_HANDLER = CommandHandler(("x", "ex", "exe", "exec", "py"),
+                              execute,
+                              block=False)
 CLEAR_HANDLER = CommandHandler("clearlocals", clear, block=False)
 
 application.add_handler(EVAL_HANDLER)

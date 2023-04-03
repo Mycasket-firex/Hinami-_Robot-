@@ -14,7 +14,7 @@ from telethon import events
 from telethon.tl.functions.channels import GetFullChannelRequest
 from telethon.tl.types import ChannelParticipantsAdmins
 from hinamibot import (DEV_USERS, DRAGONS, INFOPIC, LOGGER, OWNER_ID,
-                        application)
+                       application)
 from hinamibot import telethn as HinamiTelethonClient
 from hinamibot.__main__ import STATS, TOKEN, USER_INFO
 from hinamibot.modules.disable import DisableAbleCommandHandler
@@ -40,7 +40,7 @@ async def get_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
     else:
         pass
-            
+
     if message.reply_to_message and message.reply_to_message.forward_from:
 
         user1 = message.reply_to_message.from_user
@@ -60,25 +60,29 @@ async def get_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     elif chat.type == "private":
         await message.reply_text(
-            f"Your id is <code>{chat.id}</code>.", parse_mode=ParseMode.HTML,
+            f"Your id is <code>{chat.id}</code>.",
+            parse_mode=ParseMode.HTML,
         )
     else:
         await message.reply_text(
-        f"This group's id is <code>{chat.id}</code>.", parse_mode=ParseMode.HTML,
+            f"This group's id is <code>{chat.id}</code>.",
+            parse_mode=ParseMode.HTML,
         )
     return
 
+
 @HinamiTelethonClient.on(
     events.NewMessage(
-        pattern="/ginfo ", from_users=(DRAGONS or []),
-    ),
-)
+        pattern="/ginfo ",
+        from_users=(DRAGONS or []),
+    ), )
 async def group_info(event) -> None:
     chat = event.text.split(" ", 1)[1]
     try:
         entity = await event.client.get_entity(chat)
         totallist = await event.client.get_participants(
-            entity, filter=ChannelParticipantsAdmins,
+            entity,
+            filter=ChannelParticipantsAdmins,
         )
         ch_full = await event.client(GetFullChannelRequest(channel=entity))
     except:
@@ -109,7 +113,6 @@ async def group_info(event) -> None:
     await event.reply(msg)
 
 
-
 async def gifid(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = update.effective_message
     if msg.reply_to_message and msg.reply_to_message.animation and not msg.reply_to_message.forum_topic_created:
@@ -118,7 +121,9 @@ async def gifid(update: Update, context: ContextTypes.DEFAULT_TYPE):
             parse_mode=ParseMode.HTML,
         )
     else:
-        await update.effective_message.reply_text("Please reply to a gif to get its ID.")
+        await update.effective_message.reply_text(
+            "Please reply to a gif to get its ID.")
+
 
 async def info(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat = update.effective_chat
@@ -129,7 +134,8 @@ async def info(update: Update, context: ContextTypes.DEFAULT_TYPE):
     head = ""
     premium = False
 
-    reply = await message.reply_text("<code>Getting Information...</code>", parse_mode=ParseMode.HTML)
+    reply = await message.reply_text("<code>Getting Information...</code>",
+                                     parse_mode=ParseMode.HTML)
 
     if len(args) >= 1 and args[0][0] == "@":
         user_name = args[0]
@@ -139,7 +145,8 @@ async def info(update: Update, context: ContextTypes.DEFAULT_TYPE):
             try:
                 chat_obj = await bot.get_chat(user_name)
             except BadRequest:
-                await reply.edit_text("I can't get information about this user/channel/group.")
+                await reply.edit_text(
+                    "I can't get information about this user/channel/group.")
                 return
             userid = chat_obj.id
         else:
@@ -165,9 +172,10 @@ async def info(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         chat_obj = await bot.get_chat(userid)
     except (BadRequest, UnboundLocalError):
-        await reply.edit_text("I can't get information about this user/channel/group.")
+        await reply.edit_text(
+            "I can't get information about this user/channel/group.")
         return
-    
+
     if chat_obj.type == ChatType.PRIVATE:
         if not chat_obj.username:
             head = f"╒═══「<b> User Information:</b> 」\n"
@@ -189,7 +197,7 @@ async def info(update: Update, context: ContextTypes.DEFAULT_TYPE):
             head += f"<b>\nPremium User:</b> {premium}"
         if chat_obj.bio:
             head += f"<b>\n\nBio:</b> {chat_obj.bio}"
-        
+
         if chat.type != ChatType.PRIVATE:
             if chat_obj.id != bot.id:
                 if is_afk(chat_obj.id):
@@ -200,7 +208,7 @@ async def info(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         head += f"<b>\n\nAFK:</b> This user is away from keyboard since {time}"
                     else:
                         head += f"<b>\n\nAFK:</b> This user is away from keyboard since {time}, \nReason: {afk_st.reason}"
-            
+
             chat_member = await chat.get_member(chat_obj.id)
             if isinstance(chat_member, ChatMemberAdministrator):
                 head += f"<b>\nPresence:</b> {chat_member.status}"
@@ -211,7 +219,7 @@ async def info(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             if is_approved(chat.id, chat_obj.id):
                 head += f"<b>\nApproved:</b> This user is approved in this chat."
-        
+
         disaster_level_present = False
 
         if chat_obj.id == OWNER_ID:
@@ -225,8 +233,7 @@ async def info(update: Update, context: ContextTypes.DEFAULT_TYPE):
             disaster_level_present = True
         if disaster_level_present:
             head += ' [<a href="https://t.me/blackbull_bots/49">?</a>]'.format(
-                bot.username,
-            )
+                bot.username, )
 
         for mod in USER_INFO:
             try:
@@ -235,7 +242,7 @@ async def info(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 mod_info = mod.__user_info__(chat_obj.id, chat.id).strip()
 
             head += "\n\n" + mod_info if mod_info else ""
-            
+
     if chat_obj.type == ChatType.SENDER:
         head = f"╒═══「<b>Sender Chat Information:</b> 」\n"
         await reply.edit_text("Found Sender Chat, getting information...")
@@ -273,7 +280,7 @@ async def info(update: Update, context: ContextTypes.DEFAULT_TYPE):
         head += f"\nPermalink: {mention_html(chat_obj.id, 'link')}"
         if chat_obj.description:
             head += f"<b>\n\nDescription:</b> {chat_obj.description}"
-    
+
     if INFOPIC:
         try:
             if chat_obj.photo:
@@ -290,24 +297,26 @@ async def info(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 os.remove(f"{chat_obj.id}.png")
             else:
                 await reply.edit_text(
-                escape(head), parse_mode=ParseMode.HTML, disable_web_page_preview=True,
-            )
+                    escape(head),
+                    parse_mode=ParseMode.HTML,
+                    disable_web_page_preview=True,
+                )
 
-            
         except:
             await reply.edit_text(
-                escape(head), parse_mode=ParseMode.HTML, disable_web_page_preview=True,
+                escape(head),
+                parse_mode=ParseMode.HTML,
+                disable_web_page_preview=True,
             )
-    
-
-
 
 
 @check_admin(only_sudo=True)
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    stats = "<b>📊 Current stats:</b>\n" + "\n".join([mod.__stats__() for mod in STATS])
+    stats = "<b>📊 Current stats:</b>\n" + "\n".join(
+        [mod.__stats__() for mod in STATS])
     result = re.sub(r"(\d+)", r"<code>\1</code>", stats)
-    await update.effective_message.reply_text(result, parse_mode=ParseMode.HTML)
+    await update.effective_message.reply_text(result,
+                                              parse_mode=ParseMode.HTML)
 
 
 __help__ = """
@@ -319,18 +328,15 @@ __help__ = """
  • `/info`*:* get information about a user.
 """
 
-
 STATS_HANDLER = CommandHandler("stats", stats, block=False)
 ID_HANDLER = DisableAbleCommandHandler("id", get_id, block=False)
 GIFID_HANDLER = DisableAbleCommandHandler("gifid", gifid, block=False)
 INFO_HANDLER = DisableAbleCommandHandler(("info", "book"), info, block=False)
 
-
 application.add_handler(STATS_HANDLER)
 application.add_handler(ID_HANDLER)
 application.add_handler(GIFID_HANDLER)
 application.add_handler(INFO_HANDLER)
-
 
 __mod_name__ = "Info"
 __command_list__ = ["info"]

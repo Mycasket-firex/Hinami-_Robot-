@@ -13,7 +13,9 @@ from telegram.ext import (
 )
 
 
-async def get_invalid_chats(update: Update, context: ContextTypes.DEFAULT_TYPE, remove: bool = False):
+async def get_invalid_chats(update: Update,
+                            context: ContextTypes.DEFAULT_TYPE,
+                            remove: bool = False):
     bot = context.bot
     chat_id = update.effective_chat.id
     chats = user_sql.get_all_chats()
@@ -28,13 +30,16 @@ async def get_invalid_chats(update: Update, context: ContextTypes.DEFAULT_TYPE, 
             if progress_message:
                 try:
                     await bot.editMessageText(
-                        progress_bar, chat_id, progress_message.message_id,
+                        progress_bar,
+                        chat_id,
+                        progress_message.message_id,
                     )
                 except:
                     pass
             else:
                 progress_message = await bot.sendMessage(
-                    chat_id, progress_bar, 
+                    chat_id,
+                    progress_bar,
                 )
             progress += 5
 
@@ -62,7 +67,9 @@ async def get_invalid_chats(update: Update, context: ContextTypes.DEFAULT_TYPE, 
         return kicked_chats
 
 
-async def get_invalid_gban(update: Update, context: ContextTypes.DEFAULT_TYPE, remove: bool = False):
+async def get_invalid_gban(update: Update,
+                           context: ContextTypes.DEFAULT_TYPE,
+                           remove: bool = False):
     bot = context.bot
     banned = gban_sql.get_gban_list()
     ungbanned_users = 0
@@ -88,7 +95,6 @@ async def get_invalid_gban(update: Update, context: ContextTypes.DEFAULT_TYPE, r
         return ungbanned_users
 
 
-
 @check_admin(only_dev=True)
 async def dbcleanup(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = update.effective_message
@@ -102,12 +108,14 @@ async def dbcleanup(update: Update, context: ContextTypes.DEFAULT_TYPE):
     reply = f"Total invalid chats - {invalid_chat_count}\n"
     reply += f"Total invalid gbanned users - {invalid_gban_count}"
 
-    buttons = [[InlineKeyboardButton("Cleanup DB", callback_data="db_cleanup")]]
+    buttons = [[
+        InlineKeyboardButton("Cleanup DB", callback_data="db_cleanup")
+    ]]
 
     await msg_edited.edit_text(
-        reply, reply_markup=InlineKeyboardMarkup(buttons),
+        reply,
+        reply_markup=InlineKeyboardMarkup(buttons),
     )
-
 
 
 async def callback_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -123,28 +131,32 @@ async def callback_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if query_type == "db_leave_chat":
         if query.from_user.id in admin_list:
-            await bot.editMessageText("Leaving chats ...", chat_id, message.message_id)
+            await bot.editMessageText("Leaving chats ...", chat_id,
+                                      message.message_id)
             chat_count = get_invalid_chats(update, context, True)
             await update.effective_message.edit_text(
-                f"Left {chat_count} chats.",
-            )
+                f"Left {chat_count} chats.", )
         else:
             await query.answer("You are not allowed to use this.")
     elif query_type == "db_cleanup":
         if query.from_user.id in admin_list:
-            await bot.editMessageText("Cleaning up DB ...", chat_id, message.message_id)
+            await bot.editMessageText("Cleaning up DB ...", chat_id,
+                                      message.message_id)
             invalid_chat_count = await get_invalid_chats(update, context, True)
             invalid_gban_count = await get_invalid_gban(update, context, True)
             reply = "Cleaned up {} chats and {} gbanned users from db.".format(
-                invalid_chat_count, invalid_gban_count,
+                invalid_chat_count,
+                invalid_gban_count,
             )
-            await update.effective_message.edit_text(reply,)
+            await update.effective_message.edit_text(reply, )
         else:
             await query.answer("You are not allowed to use this.")
 
 
 DB_CLEANUP_HANDLER = CommandHandler("dbcleanup", dbcleanup, block=False)
-BUTTON_HANDLER = CallbackQueryHandler(callback_button, pattern="db_.*", block=False)
+BUTTON_HANDLER = CallbackQueryHandler(callback_button,
+                                      pattern="db_.*",
+                                      block=False)
 
 application.add_handler(DB_CLEANUP_HANDLER)
 application.add_handler(BUTTON_HANDLER)

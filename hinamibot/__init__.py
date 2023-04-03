@@ -7,7 +7,6 @@ import asyncio
 import telegram.ext as tg
 import random
 
-
 from telegram.ext import Application
 from telegram.error import BadRequest, Forbidden
 from telethon.sessions import MemorySession
@@ -20,16 +19,15 @@ try:
 except:
     print("Can't import config!")
 
-
 load_dotenv()
-
 
 StartTime = time.time()
 
 # enable logging
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.FileHandler("log.txt"), logging.StreamHandler()],
+    handlers=[logging.FileHandler("log.txt"),
+              logging.StreamHandler()],
     level=1,
 )
 
@@ -61,9 +59,11 @@ if ENV:
 
     try:
         DRAGONS = set(int(x) for x in os.environ.get("DRAGONS", "").split())
-        DEV_USERS = set(int(x) for x in os.environ.get("DEV_USERS", "").split())
+        DEV_USERS = set(
+            int(x) for x in os.environ.get("DEV_USERS", "").split())
     except ValueError:
-        raise Exception("Your sudo or dev users list does not contain valid integers.")
+        raise Exception(
+            "Your sudo or dev users list does not contain valid integers.")
 
     INFOPIC = bool(os.environ.get("INFOPIC", False))
     EVENT_LOGS = os.environ.get("EVENT_LOGS", None)
@@ -75,11 +75,15 @@ if ENV:
     API_HASH = os.environ.get("API_HASH", None)
     DONATION_LINK = os.environ.get("DONATION_LINK")
     LOAD = os.environ.get("LOAD", "").split()
-    NO_LOAD = os.environ.get("NO_LOAD", "translation rss cleaner connection math").split()
+    NO_LOAD = os.environ.get(
+        "NO_LOAD", "translation rss cleaner connection math").split()
     DEL_CMDS = bool(os.environ.get("DEL_CMDS", False))
     STRICT_GBAN = bool(os.environ.get("STRICT_GBAN", False))
     WORKERS = int(os.environ.get("WORKERS", 8))
-    BAN_STICKER = os.environ.get("BAN_STICKER", "CAACAgUAAxkBAAEDRNJhjolhBDkOeJLs2cPuhskKthnoQwACFwIAAs4DwFWTjimU8iDvqiIE")
+    BAN_STICKER = os.environ.get(
+        "BAN_STICKER",
+        "CAACAgUAAxkBAAEDRNJhjolhBDkOeJLs2cPuhskKthnoQwACFwIAAs4DwFWTjimU8iDvqiIE"
+    )
     ALLOW_EXCL = os.environ.get("ALLOW_EXCL", False)
     TIME_API_KEY = os.environ.get("TIME_API_KEY", None)
     AI_API_KEY = os.environ.get("AI_API_KEY", None)
@@ -89,15 +93,13 @@ if ENV:
     ALLOW_CHATS = os.environ.get("ALLOW_CHATS", True)
     DB_URI = os.environ.get("DATABASE_URL")
 
- 
-    
     TEMP_DOWNLOAD_LOC = os.environ.get("TEMP_DOWNLOAD_LOC", None)
-
 
     try:
         BL_CHATS = set(int(x) for x in os.environ.get("BL_CHATS", "").split())
     except ValueError:
-        raise Exception("Your blacklisted chats list does not contain valid integers.")
+        raise Exception(
+            "Your blacklisted chats list does not contain valid integers.")
 
 else:
 
@@ -115,7 +117,8 @@ else:
         DRAGONS = set(int(x) for x in Config.DRAGONS or [])
         DEV_USERS = set(int(x) for x in Config.DEV_USERS or [])
     except ValueError:
-        raise Exception("Your sudo or dev users list does not contain valid integers.")
+        raise Exception(
+            "Your sudo or dev users list does not contain valid integers.")
 
     EVENT_LOGS = Config.EVENT_LOGS
     WEBHOOK = Config.WEBHOOK
@@ -138,33 +141,35 @@ else:
     SUPPORT_CHAT = Config.SUPPORT_CHAT
     INFOPIC = Config.INFOPIC
     TEMP_DOWNLOAD_LOC = Config.TEMP_DOWNLOAD_LOC
-    DB_URI = Config.SQLALCHEMY_DATABASE_URI 
+    DB_URI = Config.SQLALCHEMY_DATABASE_URI
 
     try:
         BL_CHATS = set(int(x) for x in Config.BL_CHATS or [])
     except ValueError:
-        raise Exception("Your blacklisted chats list does not contain valid integers.")
-        
+        raise Exception(
+            "Your blacklisted chats list does not contain valid integers.")
+
 DEV_USERS.add(OWNER_ID)
 
 telethn = TelegramClient(MemorySession(), API_ID, API_HASH)
 
+
 async def post_init(application: Application):
     try:
-        await application.bot.sendMessage(-1001765891293, random.choice(ALIVE_TEXT))
+        await application.bot.sendMessage(-1001765891293,
+                                          random.choice(ALIVE_TEXT))
     except Forbidden:
         LOGGER.warning(
-            "Bot isn't able to send message to support_chat, go and check!",
-        )
+            "Bot isn't able to send message to support_chat, go and check!", )
     except BadRequest as e:
         LOGGER.warning(e.message)
+
 
 application = Application.builder().token(TOKEN).post_init(post_init).build()
 asyncio.get_event_loop().run_until_complete(application.bot.initialize())
 
 DRAGONS = list(DRAGONS) + list(DEV_USERS)
 DEV_USERS = list(DEV_USERS)
-
 
 # Load at end to ensure all prev variables have been set
 from hinamibot.modules.helper_funcs.handlers import (

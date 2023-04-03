@@ -8,9 +8,10 @@ from telegram.ext import ContextTypes
 
 async def ud(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.effective_message
-    text = message.text[len("/ud ") :]
+    text = message.text[len("/ud "):]
     async with AsyncClient() as client:
-        r = await client.get(f"https://api.urbandictionary.com/v0/define?term={text}")
+        r = await client.get(
+            f"https://api.urbandictionary.com/v0/define?term={text}")
     results = r.json()
     try:
         reply_text = f'*{text}*\n\n{results["list"][0]["definition"]}\n\n_{results["list"][0]["example"]}_'

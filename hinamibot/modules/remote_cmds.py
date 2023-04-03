@@ -81,12 +81,14 @@ RUNMUTE_ERRORS = {
     "Not in the chat",
 }
 
+
 async def rban(update: Update, context: ContextTypes.DEFAULT_TYPE):
     bot, args = context.bot, context.args
     message = update.effective_message
 
     if not args:
-        await message.reply_text("You don't seem to be referring to a chat/user.")
+        await message.reply_text(
+            "You don't seem to be referring to a chat/user.")
         return
 
     user_id, chat_id = await extract_user_and_text(message, context, args)
@@ -120,10 +122,7 @@ async def rban(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if isinstance(bot_member, ChatMemberAdministrator):
         bot_can_restrict_members = bot_member.can_restrict_members
 
-        if (
-            not is_bot_admin(chat, bot.id)
-            or not bot_can_restrict_members
-        ):
+        if (not is_bot_admin(chat, bot.id) or not bot_can_restrict_members):
             await message.reply_text(
                 "I can't restrict people there! Make sure I'm admin and can ban users.",
             )
@@ -172,7 +171,8 @@ async def runban(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.effective_message
 
     if not args:
-        await message.reply_text("You don't seem to be referring to a chat/user.")
+        await message.reply_text(
+            "You don't seem to be referring to a chat/user.")
         return
 
     user_id, chat_id = await extract_user_and_text(message, context, args)
@@ -200,16 +200,13 @@ async def runban(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if chat.type == "private":
         await message.reply_text("I'm sorry, but that's a private chat!")
         return
-    
+
     bot_member = await chat.get_member(bot.id)
 
     if isinstance(bot_member, ChatMemberAdministrator):
         bot_can_restrict_members = bot_member.can_restrict_members
 
-        if (
-            not is_bot_admin(chat, bot.id)
-            or not bot_can_restrict_members
-        ):
+        if (not is_bot_admin(chat, bot.id) or not bot_can_restrict_members):
             await message.reply_text(
                 "I can't unrestrict people there! Make sure I'm admin and can unban users.",
             )
@@ -231,7 +228,8 @@ async def runban(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     if user_id == bot.id:
-        await message.reply_text("I'm not gonna UNBAN myself, I'm an admin there!")
+        await message.reply_text(
+            "I'm not gonna UNBAN myself, I'm an admin there!")
         return
 
     try:
@@ -254,12 +252,14 @@ async def runban(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             await message.reply_text("Well damn, I can't unban that user.")
 
+
 async def rkick(update: Update, context: ContextTypes.DEFAULT_TYPE):
     bot, args = context.bot, context.args
     message = update.effective_message
 
     if not args:
-        await message.reply_text("You don't seem to be referring to a chat/user.")
+        await message.reply_text(
+            "You don't seem to be referring to a chat/user.")
         return
 
     user_id, chat_id = await extract_user_and_text(message, context, args)
@@ -293,10 +293,7 @@ async def rkick(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if isinstance(bot_member, ChatMemberAdministrator):
         bot_can_restrict_members = bot_member.can_restrict_members
 
-        if (
-            not is_bot_admin(chat, bot.id)
-            or not bot_can_restrict_members
-        ):
+        if (not is_bot_admin(chat, bot.id) or not bot_can_restrict_members):
             await message.reply_text(
                 "I can't restrict people there! Make sure I'm admin and can kick users.",
             )
@@ -339,12 +336,14 @@ async def rkick(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             await message.reply_text("Well damn, I can't kick that user.")
 
+
 async def rmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     bot, args = context.bot, context.args
     message = update.effective_message
 
     if not args:
-        await message.reply_text("You don't seem to be referring to a chat/user.")
+        await message.reply_text(
+            "You don't seem to be referring to a chat/user.")
         return
 
     user_id, chat_id = await extract_user_and_text(message, context, args)
@@ -378,10 +377,7 @@ async def rmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if isinstance(bot_member, ChatMemberAdministrator):
         bot_can_restrict_members = bot_member.can_restrict_members
 
-        if (
-            not is_bot_admin(chat, bot.id)
-            or not bot_can_restrict_members
-        ):
+        if (not is_bot_admin(chat, bot.id) or not bot_can_restrict_members):
             await message.reply_text(
                 "I can't restrict people there! Make sure I'm admin and can mute users.",
             )
@@ -406,7 +402,9 @@ async def rmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     try:
         await bot.restrict_chat_member(
-            chat.id, user_id, permissions=ChatPermissions(can_send_messages=False),
+            chat.id,
+            user_id,
+            permissions=ChatPermissions(can_send_messages=False),
         )
         await message.reply_text("Muted from the chat!")
     except BadRequest as excp:
@@ -426,12 +424,14 @@ async def rmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             await message.reply_text("Well damn, I can't mute that user.")
 
+
 async def runmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     bot, args = context.bot, context.args
     message = update.effective_message
 
     if not args:
-        await message.reply_text("You don't seem to be referring to a chat/user.")
+        await message.reply_text(
+            "You don't seem to be referring to a chat/user.")
         return
 
     user_id, chat_id = await extract_user_and_text(message, context, args)
@@ -465,10 +465,7 @@ async def runmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if isinstance(bot_member, ChatMemberAdministrator):
         bot_can_restrict_members = bot_member.can_restrict_members
 
-        if (
-            not is_bot_admin(chat, bot.id)
-            or not bot_can_restrict_members
-        ):
+        if (not is_bot_admin(chat, bot.id) or not bot_can_restrict_members):
             await message.reply_text(
                 "I can't unrestrict people there! Make sure I'm admin and can unban users.",
             )
@@ -484,18 +481,17 @@ async def runmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
             raise
 
     if await is_user_in_chat(chat, user_id):
-        if ((
-            member.can_send_messages
-            and member.can_send_media_messages
-            and member.can_send_other_messages
-            and member.can_add_web_page_previews
-        ) if isinstance(member, ChatMemberRestricted) else None
-        ):
-            await message.reply_text("This user already has the right to speak in that chat.")
+        if ((member.can_send_messages and member.can_send_media_messages
+             and member.can_send_other_messages
+             and member.can_add_web_page_previews) if isinstance(
+                 member, ChatMemberRestricted) else None):
+            await message.reply_text(
+                "This user already has the right to speak in that chat.")
             return
 
     if user_id == bot.id:
-        await message.reply_text("I'm not gonna UNMUTE myself, I'm an admin there!")
+        await message.reply_text(
+            "I'm not gonna UNMUTE myself, I'm an admin there!")
         return
 
     try:
@@ -528,11 +524,26 @@ async def runmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await message.reply_text("Well damn, I can't unmute that user.")
 
 
-RBAN_HANDLER = CommandHandler("rban", rban, filters=filters.User(DRAGONS), block=False)
-RUNBAN_HANDLER = CommandHandler("runban", runban, filters=filters.User(DRAGONS), block=False)
-RKICK_HANDLER = CommandHandler("rkick", rkick, filters=filters.User(DRAGONS), block=False)
-RMUTE_HANDLER = CommandHandler("rmute", rmute, filters=filters.User(DRAGONS), block=False)
-RUNMUTE_HANDLER = CommandHandler("runmute", runmute, filters=filters.User(DRAGONS), block=False)
+RBAN_HANDLER = CommandHandler("rban",
+                              rban,
+                              filters=filters.User(DRAGONS),
+                              block=False)
+RUNBAN_HANDLER = CommandHandler("runban",
+                                runban,
+                                filters=filters.User(DRAGONS),
+                                block=False)
+RKICK_HANDLER = CommandHandler("rkick",
+                               rkick,
+                               filters=filters.User(DRAGONS),
+                               block=False)
+RMUTE_HANDLER = CommandHandler("rmute",
+                               rmute,
+                               filters=filters.User(DRAGONS),
+                               block=False)
+RUNMUTE_HANDLER = CommandHandler("runmute",
+                                 runmute,
+                                 filters=filters.User(DRAGONS),
+                                 block=False)
 
 application.add_handler(RBAN_HANDLER)
 application.add_handler(RUNBAN_HANDLER)

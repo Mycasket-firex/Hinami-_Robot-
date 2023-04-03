@@ -18,17 +18,9 @@ from hinamibot.modules.helper_funcs.misc import split_message
 from hinamibot.modules.helper_funcs.string_handling import split_quotes
 from hinamibot.modules.log_channel import loggable
 from hinamibot.modules.sql import warns_sql as sql
-from telegram import (
-    CallbackQuery,
-    Chat,
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
-    Message,
-    Update,
-    User,
-    ChatMemberAdministrator,
-    ChatMemberOwner
-)
+from telegram import (CallbackQuery, Chat, InlineKeyboardButton,
+                      InlineKeyboardMarkup, Message, Update, User,
+                      ChatMemberAdministrator, ChatMemberOwner)
 from telegram.constants import ParseMode, MessageLimit
 from telegram.error import BadRequest
 from telegram.ext import (
@@ -48,7 +40,11 @@ CURRENT_WARNING_FILTER_STRING = "<b>Current warning filters in this chat:</b>\n"
 
 # Not async
 async def warn(
-    user: User, chat: Chat, reason: str, message: Message, warner: User = None,
+    user: User,
+    chat: Chat,
+    reason: str,
+    message: Message,
+    warner: User = None,
 ) -> str:
     if await is_user_admin(chat, user.id):
         await message.reply_text("Damn admins, They are too far to be Warned")
@@ -68,16 +64,14 @@ async def warn(
             reply = (
                 f"<code>❕</code><b>Kick Event</b>\n"
                 f"<code> </code><b>•  User:</b> {mention_html(user.id, user.first_name)}\n"
-                f"<code> </code><b>•  Count:</b> {limit}"
-            )
+                f"<code> </code><b>•  Count:</b> {limit}")
 
         else:  # ban
             await chat.ban_member(user.id)
             reply = (
                 f"<code>❕</code><b>Ban Event</b>\n"
                 f"<code> </code><b>•  User:</b> {mention_html(user.id, user.first_name)}\n"
-                f"<code> </code><b>•  Count:</b> {limit}"
-            )
+                f"<code> </code><b>•  Count:</b> {limit}")
 
         for warn_reason in reasons:
             reply += f"\n - {html.escape(warn_reason)}"
@@ -90,25 +84,22 @@ async def warn(
             f"<b>Admin:</b> {warner_tag}\n"
             f"<b>User:</b> {mention_html(user.id, user.first_name)}\n"
             f"<b>Reason:</b> {reason}\n"
-            f"<b>Counts:</b> <code>{num_warns}/{limit}</code>"
-        )
+            f"<b>Counts:</b> <code>{num_warns}/{limit}</code>")
 
     else:
-        keyboard = InlineKeyboardMarkup(
+        keyboard = InlineKeyboardMarkup([
             [
-                [
-                    InlineKeyboardButton(
-                        "🔘 Remove warn", callback_data="rm_warn({})".format(user.id),
-                    ),
-                ],
+                InlineKeyboardButton(
+                    "🔘 Remove warn",
+                    callback_data="rm_warn({})".format(user.id),
+                ),
             ],
-        )
+        ], )
 
         reply = (
             f"<code>❕</code><b>Warn Event</b>\n"
             f"<code> </code><b>•  User:</b> {mention_html(user.id, user.first_name)}\n"
-            f"<code> </code><b>•  Count:</b> {num_warns}/{limit}"
-        )
+            f"<code> </code><b>•  Count:</b> {num_warns}/{limit}")
         if reason:
             reply += f"\n<code> </code><b>•  Reason:</b> {html.escape(reason)}"
 
@@ -118,16 +109,20 @@ async def warn(
             f"<b>Admin:</b> {warner_tag}\n"
             f"<b>User:</b> {mention_html(user.id, user.first_name)}\n"
             f"<b>Reason:</b> {reason}\n"
-            f"<b>Counts:</b> <code>{num_warns}/{limit}</code>"
-        )
+            f"<b>Counts:</b> <code>{num_warns}/{limit}</code>")
 
     try:
-        await message.reply_text(reply, reply_markup=keyboard, parse_mode=ParseMode.HTML)
+        await message.reply_text(reply,
+                                 reply_markup=keyboard,
+                                 parse_mode=ParseMode.HTML)
     except BadRequest as excp:
         if excp.message == "Reply message not found":
             # Do not reply
             await message.reply_text(
-                reply, reply_markup=keyboard, parse_mode=ParseMode.HTML, quote=False,
+                reply,
+                reply_markup=keyboard,
+                parse_mode=ParseMode.HTML,
+                quote=False,
             )
         else:
             raise
@@ -151,7 +146,8 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
         res = sql.remove_warn(user_id, chat.id)
         if res:
             await update.effective_message.edit_text(
-                "Warn removed by {}.".format(mention_html(user.id, user.first_name)),
+                "Warn removed by {}.".format(
+                    mention_html(user.id, user.first_name)),
                 parse_mode=ParseMode.HTML,
             )
             user_member = await chat.get_member(user_id)
@@ -163,7 +159,8 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
             )
         else:
             await update.effective_message.edit_text(
-                "User already has no warns.", parse_mode=ParseMode.HTML,
+                "User already has no warns.",
+                parse_mode=ParseMode.HTML,
             )
 
     return ""
@@ -178,13 +175,13 @@ async def warn_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     warner: Optional[User] = update.effective_user
 
     user_id, reason = await extract_user_and_text(message, context, args)
-    if message.text.startswith("/d") and message.reply_to_message and not message.reply_to_message.forum_topic_created:
+    if message.text.startswith(
+            "/d"
+    ) and message.reply_to_message and not message.reply_to_message.forum_topic_created:
         await message.reply_to_message.delete()
     if user_id:
-        if (
-            message.reply_to_message
-            and message.reply_to_message.from_user.id == user_id
-        ):
+        if (message.reply_to_message
+                and message.reply_to_message.from_user.id == user_id):
             return await warn(
                 message.reply_to_message.from_user,
                 chat,
@@ -202,7 +199,8 @@ async def warn_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
 
 @loggable
 @check_admin(is_both=True)
-async def reset_warns(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
+async def reset_warns(update: Update,
+                      context: ContextTypes.DEFAULT_TYPE) -> str:
     args = context.args
     message: Optional[Message] = update.effective_message
     chat: Optional[Chat] = update.effective_chat
@@ -214,23 +212,21 @@ async def reset_warns(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str
         sql.reset_warns(user_id, chat.id)
         await message.reply_text("Warns have been reset!")
         warned = await chat.get_member(user_id).user
-        return (
-            f"<b>{html.escape(chat.title)}:</b>\n"
-            f"#RESETWARNS\n"
-            f"<b>Admin:</b> {mention_html(user.id, user.first_name)}\n"
-            f"<b>User:</b> {mention_html(warned.id, warned.first_name)}"
-        )
+        return (f"<b>{html.escape(chat.title)}:</b>\n"
+                f"#RESETWARNS\n"
+                f"<b>Admin:</b> {mention_html(user.id, user.first_name)}\n"
+                f"<b>User:</b> {mention_html(warned.id, warned.first_name)}")
     else:
         await message.reply_text("No user has been designated!")
     return ""
-
 
 
 async def warns(update: Update, context: ContextTypes.DEFAULT_TYPE):
     args = context.args
     message: Optional[Message] = update.effective_message
     chat: Optional[Chat] = update.effective_chat
-    user_id = await extract_user(message, context, args) or update.effective_user.id
+    user_id = await extract_user(message, context,
+                                 args) or update.effective_user.id
     result = sql.get_warns(user_id, chat.id)
 
     if result and result[0] != 0:
@@ -252,7 +248,8 @@ async def warns(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"User has {num_warns}/{limit} warns, but no reasons for any of them.",
             )
     else:
-        await update.effective_message.reply_text("This user doesn't have any warns!")
+        await update.effective_message.reply_text(
+            "This user doesn't have any warns!")
 
 
 # Dispatcher handler stop - do not async
@@ -262,7 +259,8 @@ async def add_warn_filter(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg: Optional[Message] = update.effective_message
 
     args = msg.text.split(
-        None, 1,
+        None,
+        1,
     )  # use python's maxsplit to separate Cmd, keyword, and reply_text
 
     if len(args) < 2:
@@ -285,17 +283,20 @@ async def add_warn_filter(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     sql.add_warn_filter(chat.id, keyword, content)
 
-    await update.effective_message.reply_text(f"Warn handler added for '{keyword}'!")
+    await update.effective_message.reply_text(
+        f"Warn handler added for '{keyword}'!")
     raise ApplicationHandlerStop
 
 
 @check_admin(is_user=True)
-async def remove_warn_filter(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def remove_warn_filter(update: Update,
+                             context: ContextTypes.DEFAULT_TYPE):
     chat: Optional[Chat] = update.effective_chat
     msg: Optional[Message] = update.effective_message
 
     args = msg.text.split(
-        None, 1,
+        None,
+        1,
     )  # use python's maxsplit to separate Cmd, keyword, and reply_text
 
     if len(args) < 2:
@@ -325,31 +326,34 @@ async def remove_warn_filter(update: Update, context: ContextTypes.DEFAULT_TYPE)
     )
 
 
-
-async def list_warn_filters(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def list_warn_filters(update: Update,
+                            context: ContextTypes.DEFAULT_TYPE):
     chat: Optional[Chat] = update.effective_chat
     all_handlers = sql.get_chat_warn_triggers(chat.id)
 
     if not all_handlers:
-        await update.effective_message.reply_text("No warning filters are active here!")
+        await update.effective_message.reply_text(
+            "No warning filters are active here!")
         return
 
     filter_list = CURRENT_WARNING_FILTER_STRING
     for keyword in all_handlers:
         entry = f" - {html.escape(keyword)}\n"
         if len(entry) + len(filter_list) > MessageLimit.MAX_TEXT_LENGTH:
-            await update.effective_message.reply_text(filter_list, parse_mode=ParseMode.HTML)
+            await update.effective_message.reply_text(
+                filter_list, parse_mode=ParseMode.HTML)
             filter_list = entry
         else:
             filter_list += entry
 
     if filter_list != CURRENT_WARNING_FILTER_STRING:
-        await update.effective_message.reply_text(filter_list, parse_mode=ParseMode.HTML)
-
+        await update.effective_message.reply_text(filter_list,
+                                                  parse_mode=ParseMode.HTML)
 
 
 @loggable
-async def reply_filter(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
+async def reply_filter(update: Update,
+                       context: ContextTypes.DEFAULT_TYPE) -> str:
     chat: Optional[Chat] = update.effective_chat
     message: Optional[Message] = update.effective_message
     user: Optional[User] = update.effective_user
@@ -374,9 +378,11 @@ async def reply_filter(update: Update, context: ContextTypes.DEFAULT_TYPE) -> st
             return await warn(user, chat, warn_filter.reply, message)
     return ""
 
+
 @check_admin(is_user=True)
 @loggable
-async def set_warn_limit(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
+async def set_warn_limit(update: Update,
+                         context: ContextTypes.DEFAULT_TYPE) -> str:
     args = context.args
     chat: Optional[Chat] = update.effective_chat
     user: Optional[User] = update.effective_user
@@ -388,13 +394,13 @@ async def set_warn_limit(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                 await msg.reply_text("The minimum warn limit is 3!")
             else:
                 sql.set_warn_limit(chat.id, int(args[0]))
-                await msg.reply_text("Updated the warn limit to {}".format(args[0]))
+                await msg.reply_text("Updated the warn limit to {}".format(
+                    args[0]))
                 return (
                     f"<b>{html.escape(chat.title)}:</b>\n"
                     f"#SET_WARN_LIMIT\n"
                     f"<b>Admin:</b> {mention_html(user.id, user.first_name)}\n"
-                    f"Set the warn limit to <code>{args[0]}</code>"
-                )
+                    f"Set the warn limit to <code>{args[0]}</code>")
         else:
             await msg.reply_text("Give me a number as an arg!")
     else:
@@ -403,8 +409,10 @@ async def set_warn_limit(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         await msg.reply_text("The current warn limit is {}".format(limit))
     return ""
 
+
 @check_admin(is_user=True)
-async def set_warn_strength(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def set_warn_strength(update: Update,
+                            context: ContextTypes.DEFAULT_TYPE):
     args = context.args
     chat: Optional[Chat] = update.effective_chat
     user: Optional[User] = update.effective_user
@@ -428,8 +436,7 @@ async def set_warn_strength(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return (
                 f"<b>{html.escape(chat.title)}:</b>\n"
                 f"<b>Admin:</b> {mention_html(user.id, user.first_name)}\n"
-                f"Has disabled strong Kicks. I will use normal kick on users."
-            )
+                f"Has disabled strong Kicks. I will use normal kick on users.")
 
         else:
             await msg.reply_text("I only understand on/yes/no/off!")
@@ -491,26 +498,45 @@ be a sentence, encompass it with quotes, as such: `/addwarn "very angry" This is
 
 __mod_name__ = "Warnings"
 
-WARN_HANDLER = CommandHandler(["warn", "dwarn"], warn_user, filters=filters.ChatType.GROUPS, block=False)
-RESET_WARN_HANDLER = CommandHandler(
-    ["resetwarn", "resetwarns"], reset_warns, filters=filters.ChatType.GROUPS, block=False
-)
-CALLBACK_QUERY_HANDLER = CallbackQueryHandler(button, pattern=r"rm_warn", block=False)
-MYWARNS_HANDLER = DisableAbleCommandHandler("warns", warns, filters=filters.ChatType.GROUPS, block=False)
-ADD_WARN_HANDLER = CommandHandler("addwarn", add_warn_filter, filters=filters.ChatType.GROUPS)
+WARN_HANDLER = CommandHandler(["warn", "dwarn"],
+                              warn_user,
+                              filters=filters.ChatType.GROUPS,
+                              block=False)
+RESET_WARN_HANDLER = CommandHandler(["resetwarn", "resetwarns"],
+                                    reset_warns,
+                                    filters=filters.ChatType.GROUPS,
+                                    block=False)
+CALLBACK_QUERY_HANDLER = CallbackQueryHandler(button,
+                                              pattern=r"rm_warn",
+                                              block=False)
+MYWARNS_HANDLER = DisableAbleCommandHandler("warns",
+                                            warns,
+                                            filters=filters.ChatType.GROUPS,
+                                            block=False)
+ADD_WARN_HANDLER = CommandHandler("addwarn",
+                                  add_warn_filter,
+                                  filters=filters.ChatType.GROUPS)
 RM_WARN_HANDLER = CommandHandler(
-    ["nowarn", "stopwarn"], remove_warn_filter, filters=filters.ChatType.GROUPS,
+    ["nowarn", "stopwarn"],
+    remove_warn_filter,
+    filters=filters.ChatType.GROUPS,
 )
-LIST_WARN_HANDLER = DisableAbleCommandHandler(
-    ["warnlist", "warnfilters"], list_warn_filters, filters=filters.ChatType.GROUPS, admin_ok=True, block=False
-)
-WARN_FILTER_HANDLER = MessageHandler(
-    filters.TEXT & filters.ChatType.GROUPS, reply_filter, block=False
-)
-WARN_LIMIT_HANDLER = CommandHandler("warnlimit", set_warn_limit, filters=filters.ChatType.GROUPS, block=False)
-WARN_STRENGTH_HANDLER = CommandHandler(
-    "strongwarn", set_warn_strength, filters=filters.ChatType.GROUPS, block=False
-)
+LIST_WARN_HANDLER = DisableAbleCommandHandler(["warnlist", "warnfilters"],
+                                              list_warn_filters,
+                                              filters=filters.ChatType.GROUPS,
+                                              admin_ok=True,
+                                              block=False)
+WARN_FILTER_HANDLER = MessageHandler(filters.TEXT & filters.ChatType.GROUPS,
+                                     reply_filter,
+                                     block=False)
+WARN_LIMIT_HANDLER = CommandHandler("warnlimit",
+                                    set_warn_limit,
+                                    filters=filters.ChatType.GROUPS,
+                                    block=False)
+WARN_STRENGTH_HANDLER = CommandHandler("strongwarn",
+                                       set_warn_strength,
+                                       filters=filters.ChatType.GROUPS,
+                                       block=False)
 
 application.add_handler(WARN_HANDLER)
 application.add_handler(CALLBACK_QUERY_HANDLER)
