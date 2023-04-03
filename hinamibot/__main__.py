@@ -690,9 +690,6 @@ async def send_alive(context: ContextTypes.DEFAULT_TYPE):
 
 def main():
 
-    #send alive message to support chat once an hour
-    application.job_queue.run_repeating(send_alive, interval=3600, first=10)
-    
     start_handler = CommandHandler("start", start, block=False)
 
     help_handler = CommandHandler("help", get_help, block=False)
